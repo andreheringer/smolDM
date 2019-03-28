@@ -1,6 +1,7 @@
 import discord
 import asyncio
 
+
 class DiscordClient(discord.Client):
     """
     This class inhird from the discord client wrapper,

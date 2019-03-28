@@ -5,17 +5,19 @@ from configure import dev_env
 from connection import SQLDataBase
 
 cmd = CommandHandler()
-db =  SQLDataBase()
+db = SQLDataBase()
 bot = DiscordClient(cmd, db)
+
 
 @cmd.register("!roll<num>")
 def roll(message, *, num):
     x = int(num)
     number = random.randint(1, x)
-    return(f"{number}")
+    author = message.author
+    return(f"{author} rolled {number}")
 
-#@cmd.register("!initicative")
-#def roll_iniciative(message):
+# @cmd.register("!initicative")
+# def roll_iniciative(message):
 
 
 if __name__ == '__main__':

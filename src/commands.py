@@ -58,12 +58,12 @@ class CommandHandler:
         """This method searches for a command match in the command_list atribute.
 
             Parameters:
-                command: String to be matched
+                message: message object from the Dsicord API
 
             Returns:
                 optinal tuple: A tuple containing the match dictionary and the function reference
         """
-        command = message.content
+        command = message.content  # get the text in message
         for command_patter, command_func in self.command_list:
             match = command_patter.match(command)
             if match:
