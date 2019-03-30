@@ -1,5 +1,7 @@
 import discord
 import asyncio
+from connection import SQLDataBase
+from commands import CommandHandler
 
 
 class DiscordClient(discord.Client):
@@ -8,18 +10,23 @@ class DiscordClient(discord.Client):
     should abstract the connection with the discord api.
     """
 
-    def __init__(self, command_handler, db_instance):
+    def __init__(self):
         """
             DiscordClient __init__ method, this method
             calls for the discord.Client(parent class) __init__
+            it also makes compositions with CommandHandler and
+            SQLDatabase objects.
             Parameters:
                 command_handler: A command handler object
             Returns:
-                nothing.
+                DiscordClient object.
         """
-        self.cmdh = command_handler
-        self.db = db_instance
+        self.cmd = CommandHandler()
+        self.db = SQLDataBase()
         super().__init__()
+
+    def register_command(self, command_str: str):
+        return self.cmd.register(command_str)
 
     @staticmethod
     async def on_ready():
@@ -34,7 +41,7 @@ class DiscordClient(discord.Client):
         """
             Event triggered whenever the client receives a new menssage.
         """
-        patern_match = self.cmdh.get_command_match(message)
+        patern_match = self.cmd.get_command_match(message)
         if not patern_match:
             return None
         kwargs, func = patern_match
