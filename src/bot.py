@@ -1,3 +1,4 @@
+import os
 import random
 from client import DiscordClient
 
@@ -24,4 +25,4 @@ def startDB(message):
 
 
 if __name__ == '__main__':
-    bot.run('NTM5MjMwNTI5MTgzMTU0MjE2.D4AA2g.kzn7149rpqEs2B8AsvYhrOinkTU')
+    bot.run(os.getenv('CRAEL_SECRET_TOKEN'))
