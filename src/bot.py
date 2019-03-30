@@ -1,6 +1,5 @@
 import random
 from client import DiscordClient
-from configure import dev_env
 
 
 bot = DiscordClient()
@@ -17,7 +16,7 @@ def roll(message, *, num):
 @bot.register_command("!startDB")
 def startDB(message):
     try:
-        bot.db.db_init()
+        bot.db_init()
         return(f"A Data Base was created!")
     except Exception as e:
         print(e)
@@ -25,4 +24,4 @@ def startDB(message):
 
 
 if __name__ == '__main__':
-    bot.run(dev_env.DiscordBotToken)
+    bot.run('NTM5MjMwNTI5MTgzMTU0MjE2.D4AA2g.kzn7149rpqEs2B8AsvYhrOinkTU')

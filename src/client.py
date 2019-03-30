@@ -1,3 +1,10 @@
+"""
+    This module defines the Discord Bot interface.
+
+    :copywrite: Andre Heringer 2018-2019
+    :license: MIT, see license for details
+"""
+
 import discord
 import asyncio
 from connection import SQLDataBase
@@ -25,12 +32,22 @@ class DiscordClient(discord.Client):
         self.db = SQLDataBase()
         super().__init__()
 
+    def db_init(self):
+        with self.db as db:
+            with open(db.SCHEMA_URI, mode='r') as sql:
+                script = sql.read()
+            cur = db.get_cursor()
+            cur.executescript(script)
+            print(f"Database created gracefully")
+        return
+
     def register_command(self, command_str: str):
         return self.cmd.register(command_str)
 
     @staticmethod
     async def on_ready():
-        """
+        """Re-implementation from parent class.
+            
             Event triggered whenever the client is ready for
             interaction. Parent class requires it to be static.
         """
@@ -38,7 +55,8 @@ class DiscordClient(discord.Client):
         print("------")
 
     async def on_message(self, message):
-        """
+        """Re-implementation from parent class.
+
             Event triggered whenever the client receives a new menssage.
         """
         patern_match = self.cmd.get_command_match(message)

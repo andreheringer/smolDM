@@ -8,33 +8,35 @@
 import os
 import sqlite3 as lite
 from sqlite3 import Error
-from configure import dev_env
 
 
 class SQLDataBase:
-    """This class acts as a interface for the SQLite Crael database"""
+    """This class acts as a interface for the SQLite Crael database.
+        It's also defined as a context manager so it can be used alog side
+        a "with" statement.
+    """
 
-    DATABASE_URI = os.path.join(os.path.dirname(__file__), dev_env.DatabaseFile)
-    SCHEMA_URI = os.path.join(os.path.dirname(__file__), dev_env.Schema)
+    DATABASE_URI = os.path.join(os.path.dirname(__file__), "db/creal.db")
+    SCHEMA_URI = os.getenv('SHCEMA_', default=os.path.join(os.path.dirname(__file__), "db/schema.sql"))
 
-    def __init__(self):
+    def __init__(self, conn=None):
         """Init method instancite a None connection
 
             Properties:
                 _conn: The sqlite connection object
         """
-        self._conn = None
+        self.__conn = conn
 
     @property
-    def get_connection(self):
+    def conn(self):
         """Connection proprety getter.
 
-            Returns: self._conn
+            Returns: self.__conn
         """
-        return self._conn
+        return self.__conn
 
-    @property.setter
-    def set_connection(self, signal: bool):
+    @conn.setter
+    def conn(self, signal: bool):
         """Connection proprety setter
 
             Parameters:
@@ -44,34 +46,29 @@ class SQLDataBase:
             Returns:
                 nothing
         """
-        if self._conn is not None and signal is False:
-            self._conn.close()
-            self._conn = None
-            return
+        if signal is False:
+            self.__conn.close()
 
-        if self._conn is None and signal is True:
+        if signal is True:
             try:
-                self._conn = lite.connect(self.DATABASE_URI)
-                return
+                self.__conn = lite.connect(self.DATABASE_URI)
             except Error as Err:
                 print(Err)
                 self._conn = None
         return
 
+    def __enter__(self):
+        """Defines the SQLDatabase entering context manager
+        """
+        self.conn = True
+        return self
 
-    def db_init(self):
+    def __exit__(self, exc_type, exc_log, exc_tb):
+        """Defines the SQLDatabase exiting context manager
+        """
+        self.conn = False
+        return False  # this propagates any exceptions inside the with block
 
-        if not self.get_connection():
-            print(f"[Err] A Connection to the DB {dev_env.DatabaseFile} already exists")
-            return
-
-        self.set_connection(True)
-        cur = self._conn.cursor()
-
-        with open(self.SCHEMA_URI, mode='r') as schema:
-            script = schema.read()
-            cur.executescript(script)
-
-        self._conn.commit()
-        print("DB Created Sucessifuly")
-        return
+    def get_cursor(self):
+        """Returns a sqlite cursor."""
+        return self.conn.cursor()
