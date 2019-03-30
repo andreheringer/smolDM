@@ -80,9 +80,6 @@ class CommandHandler:
                 The decorated function
         """
 
-        # the decorated function can not have any parameters,
-        # because the serve method has no way to acess the arguments
-        # maybe look for a way to store them somewhere?
         def cmd_error_decorator(func):
             self.error_handlers.update({"cmd_not_found": func})
             return func
