@@ -23,7 +23,7 @@ class CommandHandler:
 
     @staticmethod
     def build_command_pattern(command: str):
-        """Function used to build the regex which butler will interpret.
+        """Function used to build the regex which will be matche agains user input.
 
             Parameters:
                 command: The command string used for registration.
@@ -74,7 +74,7 @@ class CommandHandler:
     def cmd_not_found(self):
         """Helper decorator for resgistering a command match faill back function.
 
-            Does not accept any parameters
+            **Does not accept any parameters**
 
             Returns:
                 The decorated function

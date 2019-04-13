@@ -24,15 +24,19 @@ class DiscordClient(discord.Client):
             it also makes compositions with CommandHandler and
             SQLDatabase objects.
             Parameters:
-                command_handler: A command handler object
+                self
             Returns:
                 DiscordClient object.
         """
-        self.cmd = CommandHandler()
-        self.db = SQLDataBase()
+        self.cmd = CommandHandler()  # Command Handler composition
+        self.db = SQLDataBase()  # Data Base context Manager composition
         super().__init__()
 
     def db_init(self):
+        """
+            This method executes the sqlschema script and mounts the SQLite
+            database.
+        """
         with self.db as db:
             with open(db.SCHEMA_URI, mode='r') as sql:
                 script = sql.read()
@@ -42,12 +46,31 @@ class DiscordClient(discord.Client):
         return
 
     def register_command(self, command_str: str):
+        """
+            Bounds command string to a function, see CommandHandler for more info.
+        """
         return self.cmd.register(command_str)
+
+    # There should be a safer way to execute querys in SQLite
+    # TODO: Look for safer options
+    def excute_query(self, query: str):
+        """
+            Executes the query string into the DataBase
+            USE WITH CAUTION THIS EXECUTES ANY VALID SQL SCRIPT
+            Parameters:
+                query: SQL script to be executed
+            Returns:
+                Nothing
+        """
+        with self.db as db:
+            cur = db.get_cursor()
+            cur.executescript(query)
+            print(f'Query executed:\n{query}')
 
     @staticmethod
     async def on_ready():
         """Re-implementation from parent class.
-            
+
             Event triggered whenever the client is ready for
             interaction. Parent class requires it to be static.
         """
