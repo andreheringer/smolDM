@@ -38,7 +38,7 @@ class DiscordClient(discord.Client):
             database.
         """
         with self.db as db:
-            with open(db.SCHEMA_URI, mode='r') as sql:
+            with open(db.SCHEMA_URI, mode="r") as sql:
                 script = sql.read()
             cur = db.get_cursor()
             cur.executescript(script)
@@ -65,7 +65,7 @@ class DiscordClient(discord.Client):
         with self.db as db:
             cur = db.get_cursor()
             cur.executescript(query)
-            print(f'Query executed:\n{query}')
+            print(f"Query executed:\n{query}")
 
     @staticmethod
     async def on_ready():

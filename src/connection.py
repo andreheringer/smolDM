@@ -17,7 +17,9 @@ class SQLDataBase:
     """
 
     DATABASE_URI = os.path.join(os.path.dirname(__file__), "db/creal.db")
-    SCHEMA_URI = os.getenv('SHCEMA_', default=os.path.join(os.path.dirname(__file__), "db/schema.sql"))
+    SCHEMA_URI = os.getenv(
+        "SHCEMA_", default=os.path.join(os.path.dirname(__file__), "db/schema.sql")
+    )
 
     def __init__(self, conn=None):
         """Init method instancite a None connection
@@ -54,7 +56,7 @@ class SQLDataBase:
                 self.__conn = lite.connect(self.DATABASE_URI)
             except Error as Err:
                 print(Err)
-                self._conn = None
+                self.__conn = None
         return
 
     def __enter__(self):

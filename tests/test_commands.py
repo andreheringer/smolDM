@@ -1,3 +1,4 @@
+from unittest import mock
 import pytest
 from src.commands import CommandHandler
 
@@ -7,6 +8,8 @@ STR_COMMAND = "!this"
 STR_COMMAND_WITH_VARIABLE = "!this <number>"
 STR_INPUT = "!this"
 STR_INPUT_WITH_VARIABLE = "!this 20"
+
+mock_message = mock.Mock(content=STR_INPUT)
 
 # Pytest fixture and sample functions used for tests
 @pytest.fixture
@@ -49,19 +52,19 @@ def test_register(bot_instance):
     assert len(bot_instance.command_list) == 2
 
 
-"""
 def test_get_command_match(bot_instance):
     register_decorator = bot_instance.register(STR_COMMAND)
     _ = register_decorator(sample_func)
-    assert bot_instance.get_command_match(STR_INPUT)
+    assert bot_instance.get_command_match(mock_message)
 
+    mock_message.configure_mock(content=STR_INPUT_WITH_VARIABLE)
     register_decorator = bot_instance.register(STR_COMMAND_WITH_VARIABLE)
     _ = register_decorator(sample_func_with_variable)
-    assert bot_instance.get_command_match(STR_INPUT_WITH_VARIABLE) """
+    assert bot_instance.get_command_match(mock_message)
 
 
 def test_cmd_not_found(bot_instance):
     assert not any(bot_instance.error_handlers)
     register_decorator = bot_instance.cmd_not_found()
     _ = register_decorator(sample_error_handler)
-    assert bot_instance.error_handlers['cmd_not_found'] is sample_error_handler
+    assert bot_instance.error_handlers["cmd_not_found"] is sample_error_handler
