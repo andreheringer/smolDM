@@ -74,8 +74,7 @@ CREATE TABLE IF NOT EXISTS  monsters (
     name text,
     armor integer,
     max_hp integer,
-    current_hp integer, 
-    FOREIGN KEY (char_id) REFERENCES characters (id)
+    current_hp integer 
 );
 
 -- monster X attack relational table
