@@ -53,7 +53,7 @@ class DiscordClient(discord.Client):
 
     # There should be a safer way to execute querys in SQLite
     # TODO: Look for safer options
-    def excute_query(self, query: str):
+    def execute_query(self, query: str):
         """
             Executes the query string into the DataBase
             USE WITH CAUTION THIS EXECUTES ANY VALID SQL SCRIPT
@@ -88,4 +88,5 @@ class DiscordClient(discord.Client):
         kwargs, func = patern_match
         coro = asyncio.coroutine(func)
         response = await coro(message, **kwargs)
-        await self.send_message(message.channel, response)
+        channel = message.channel
+        await channel.send(response)
