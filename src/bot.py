@@ -6,6 +6,20 @@ from client import DiscordClient
 bot = DiscordClient()
 
 
+@bot.register_command("!player")
+def create_new_player(message):
+    player = message.author
+    query = f"INSERT INTO players(nickname, discord_id) VALUES(\"{player.name}\", \"{player.id}\");"
+    bot.execute_query(query)
+    return f"Added {player.display_name} as a player."
+
+
+""" @bot.register_command("!play <char_name>")
+def start_game_session(message, *, char_name):
+    db.execute_query("SELECT FROM players")
+ """
+
+
 @bot.register_command("!roll d<num>")
 def roll(message, *, num):
     x = int(num)
