@@ -10,14 +10,14 @@ bot = DiscordClient()
 def create_new_player(message):
     player = message.author
     query = f"INSERT INTO players(nickname, discord_id) VALUES(\"{player.name}\", \"{player.id}\");"
-    bot.execute_query(query)
+    _ = bot.execute_query(query)
     return f"Added {player.display_name} as a player."
 
 
-""" @bot.register_command("!play <char_name>")
+@bot.register_command("!play <char_name>")
 def start_game_session(message, *, char_name):
-    db.execute_query("SELECT FROM players")
- """
+    q = bot.execute_query("SELECT * FROM players;")
+    return f"{q}"
 
 
 @bot.register_command("!roll d<num>")

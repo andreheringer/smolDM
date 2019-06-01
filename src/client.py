@@ -5,10 +5,12 @@
     :license: MIT, see license for details
 """
 
+import sys
 import discord
 import asyncio
 from connection import SQLDataBase
 from commands import CommandHandler
+from loguru import logger
 
 
 class DiscordClient(discord.Client):
@@ -30,6 +32,7 @@ class DiscordClient(discord.Client):
         """
         self.cmd = CommandHandler()  # Command Handler composition
         self.db = SQLDataBase()  # Data Base context Manager composition
+        logger.add(sys.stdout, format="{time} {level} {message}", level="INFO")
         super().__init__()
 
     def db_init(self):
@@ -42,7 +45,7 @@ class DiscordClient(discord.Client):
                 script = sql.read()
             cur = db.get_cursor()
             cur.executescript(script)
-            print(f"Database created gracefully")
+            logger.info(f"Database created gracefully")
         return
 
     def register_command(self, command_str: str):
@@ -65,7 +68,9 @@ class DiscordClient(discord.Client):
         with self.db as db:
             cur = db.get_cursor()
             cur.executescript(query)
-            print(f"Query executed:\n{query}")
+            rows = cur.fetchall()
+            logger.debug(f"Query executed:\n{query}")
+        return rows
 
     @staticmethod
     async def on_ready():
@@ -74,9 +79,9 @@ class DiscordClient(discord.Client):
             Event triggered whenever the client is ready for
             interaction. Parent class requires it to be static.
         """
-        print("Logged")
-        print("------")
+        logger.info("Logged\n------")
 
+    @logger.catch()
     async def on_message(self, message):
         """Re-implementation from parent class.
 
