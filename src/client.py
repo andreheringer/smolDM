@@ -8,9 +8,10 @@
 import sys
 import discord
 import asyncio
+from loguru import logger
+
 from connection import SQLDataBase
 from commands import CommandHandler
-from loguru import logger
 
 
 class DiscordClient(discord.Client):
@@ -18,6 +19,9 @@ class DiscordClient(discord.Client):
     This class inhird from the discord client wrapper,
     should abstract the connection with the discord api.
     """
+
+    # TODO: Add a way to control 'state' in the bot
+    # TODO: Add encryption of some sort
 
     def __init__(self):
         """
@@ -54,6 +58,12 @@ class DiscordClient(discord.Client):
         """
         return self.cmd.register(command_str)
 
+    def execute_sql_script(self, script):
+         with self.db as db:
+            cur = db.get_cursor()
+            cur.executescript(script)
+            logger.debug(f"Query executed:\n{script}")
+
     # There should be a safer way to execute querys in SQLite
     # TODO: Look for safer options
     def execute_query(self, query: str):
@@ -67,7 +77,7 @@ class DiscordClient(discord.Client):
         """
         with self.db as db:
             cur = db.get_cursor()
-            cur.executescript(query)
+            cur.execute(query)
             rows = cur.fetchall()
             logger.debug(f"Query executed:\n{query}")
         return rows
