@@ -59,7 +59,7 @@ class DiscordClient(discord.Client):
         return self.cmd.register(command_str)
 
     def execute_sql_script(self, script):
-         with self.db as db:
+        with self.db as db:
             cur = db.get_cursor()
             cur.executescript(script)
             logger.debug(f"Query executed:\n{script}")
