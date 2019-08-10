@@ -16,7 +16,6 @@ loguru==0.2.5
 mccabe==0.6.1
 more-itertools==7.0.0
 multidict==4.5.2
-pkg-resources==0.0.0
 pluggy==0.11.0
 py==1.8.0
 pycodestyle==2.5.0

@@ -10,8 +10,8 @@ import discord
 import asyncio
 from loguru import logger
 
-from connection import SQLDataBase
-from commands import CommandHandler
+from crael.connection import SQLDataBase
+from crael.commands import CommandHandler
 
 
 class DiscordClient(discord.Client):

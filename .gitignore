@@ -4,3 +4,4 @@ env/
 *.env
 ___pycache__/
 .pytest_cache/
+*.debug.yml

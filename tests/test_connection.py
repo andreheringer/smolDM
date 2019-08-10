@@ -5,7 +5,7 @@ QUERY = "SELECT * FROM players;"
 
 @pytest.fixture
 def db_connection():
-    from src.connection import SQLDataBase
+    from crael.connection import SQLDataBase
     return SQLDataBase()
 
 

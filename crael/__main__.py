@@ -5,7 +5,7 @@
 
 import os
 import random
-from client import DiscordClient
+from crael.client import DiscordClient
 
 
 bot = DiscordClient()
