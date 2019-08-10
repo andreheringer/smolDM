@@ -7,6 +7,9 @@ trigger:
 - master
 
 pool:
+- task: DockerInstaller@0
+  inputs:
+    dockerVersion: '17.09.0-ce'
   vmImage: 'ubuntu-latest'
 
 steps:
