@@ -27,11 +27,11 @@ def create_new_player(message):
 
 @bot.register_command("!play <char_name>")
 def start_game_session(message, *, char_name):
-    player = message.author
-    player_id = bot.execute_query(f"SELECT id FROM players WHERE name={player.name};")
+    # player = message.author
+    # player_id = bot.execute_query(f"SELECT id FROM players WHERE name={player.name};")
 
-    char = bot.execute_query(f"SELECT * FROM characters WHERE \
-                               player_id={player_id} AND name={char_name};")
+    # char = bot.execute_query(f"SELECT * FROM characters WHERE \
+    #                           player_id={player_id} AND name={char_name};")
 
     q = bot.execute_query("SELECT * FROM players;")
     return f"{q}"
