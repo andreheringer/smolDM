@@ -17,23 +17,19 @@ steps:
     addToPath: true
     architecture: 'x64'
 
-- task: CmdLine@2
-  inputs:
-    script: |
-      python -m pip install --upgrade pip
-      
-      pip install -r requirements.txt
-      
-      displayName: 'Install dependencies'
+- script: pip install -r requirements.txt
+  displayName: 'Install requirements'
 
 - script: |
-      pytest tests/ --junitxml=/reports/crael-test-report.xml
-      displayName: 'Run tests'
+    flake8 .
+  displayName: 'Run lint tests'
 
+- script: |
+      pytest tests --junitxml=junit/test-results.xml
+  displayName: 'Testing with pytest'
 
 - task: PublishTestResults@2
+  condition: succeededOrFailed()
   inputs:
-    testResultsFormat: 'JUnit'
-    testResultsFiles: '/reports/crael-test-result.xml'
-    mergeTestResults: true
-    testRunTitle: 'Crael Unit Tests'
+    testResultsFiles: '**/test-*.xml'
+    testRunTitle: 'Publish test results for Python $(python.version)'
