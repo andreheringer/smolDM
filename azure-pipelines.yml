@@ -10,19 +10,30 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
 
-- task: DockerInstaller@0
+- task: UsePythonVersion@0
   inputs:
-    dockerVersion: '17.09.0-ce'
-  
-- task: Docker@2
+    versionSpec: '3.7'
+    addToPath: true
+    architecture: 'x64'
+
+- task: CmdLine@2
   inputs:
-    command: 'build'
-    Dockerfile: '**/Dockerfile'
+    script: |
+      python -m pip install --upgrade pip
+      
+      pip install -r requirements.txt
+      
+      displayName: 'Install dependencies'
 
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+      pytest tests/ --junitxml=/reports/crael-test-report.xml
+      displayName: 'Run tests'
+
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '/reports/crael-test-result.xml'
+    mergeTestResults: true
+    testRunTitle: 'Crael Unit Tests'
