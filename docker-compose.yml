@@ -1,8 +1,0 @@
-version: '2.1'
-
-services:
-  crael:
-    image: crael
-    build: .
-    ports:
-      - 3456:3456
