@@ -8,7 +8,6 @@
 
 import discord
 import asyncio
-from loguru import logger
 
 from crael.connection import SQLDataBase
 from crael.commands import CommandHandler
@@ -41,26 +40,26 @@ class DiscordClient(discord.Client):
         logger.add("crael.log", rotation="1 week", enqueue=True)
         super().__init__()
 
-    def db_init(self):
-        """
-            This method executes the sqlschema script and mounts the SQLite
-            database.
-        """
-        with self.db as db:
-            with open(db.SCHEMA_URI, mode="r") as sql:
-                script = sql.read()
-            cur = db.get_cursor()
-            cur.executescript(script)
-            logger.info(f"Database created gracefully")
-        return
-
     def register(self, command_str: str):
         """
             Bounds command string to a function, see CommandHandler for more info.
         """
         return self.cmd.register(command_str)
 
-    def execute_sql_script(self, script):
+    def db_init(self):
+        """
+            This method executes the sqlschema script and mounts the SQLite
+            database.
+        """
+        with self.db as db:
+            squema = db.get_schema_script()
+            self.execute_sql_script(squema)
+            logger.info(f"Database created gracefully")
+        return
+
+    # There should be a safer way to execute scripts in SQLite
+    # TODO: Look for safer options
+    async def execute_sql_script(self, script):
         """
             Executes the query string into the DataBase
             USE WITH CAUTION THIS EXECUTES ANY VALID SQL SCRIPT
@@ -69,20 +68,15 @@ class DiscordClient(discord.Client):
             Returns:
                 Nothing
         """
-        with self.db as db:
-            cur = db.get_cursor()
-            cur.executescript(script)
+        async with self.db as db:
+            db.execute_script(self, script)
             logger.info(f"Query executed:\n{script}")
 
     # There should be a safer way to execute querys in SQLite
     # TODO: Look for safer options
-    def execute_query(self, query: str):
-
-        with self.db as db:
-            cur = db.get_cursor()
-            cur.execute(query)
-            rows = cur.fetchall()
-            logger.info(f"Query executed:\n{query}")
+    async def execute_query(self, query: str):
+        async with self.db as db:
+            rows = db.execute_query(query)
         return rows
 
     @staticmethod
