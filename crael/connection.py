@@ -6,8 +6,7 @@
 """
 
 import os
-import sqlite3 as lite
-from sqlite3 import Error
+import aiosqlite as aiolite
 
 
 class SQLDataBase:
@@ -30,7 +29,7 @@ class SQLDataBase:
         self.__conn = conn
 
     @property
-    def conn(self):
+    async def conn(self):
         """Connection proprety getter.
 
             Returns: self.__conn
@@ -38,7 +37,7 @@ class SQLDataBase:
         return self.__conn
 
     @conn.setter
-    def conn(self, signal: bool):
+    async def conn(self, signal: bool):
         """Connection proprety setter
 
             Parameters:
@@ -53,13 +52,13 @@ class SQLDataBase:
 
         if signal is True:
             try:
-                self.__conn = lite.connect(self.DATABASE_URI)
-            except Error as Err:
+                self.__conn = await aiolite.connect(self.DATABASE_URI)
+            except aiolite.Error as Err:
                 print(Err)
                 self.__conn = None
-        return
+        return None
 
-    def __enter__(self):
+    async def __aenter__(self):
         """
             Defines the SQLDatabase entering context manager
             Returns itself.
@@ -67,7 +66,7 @@ class SQLDataBase:
         self.conn = True
         return self
 
-    def __exit__(self, exc_type, exc_log, exc_tb):
+    async def __aexit__(self, exc_type, exc_log, exc_tb):
         """
             Defines the SQLDatabase exiting context manager
         """
@@ -79,6 +78,14 @@ class SQLDataBase:
             script = sql.read()
         return script
 
-    def get_cursor(self):
-        """Returns a sqlite cursor."""
-        return self.conn.cursor()
+    async def execute_script(self, script: str):
+        await self.__conn.execute(script)
+        # logger.debug("Executed sql script:\n\n{script}\n\n")
+        changes = await self.__conn.total_changes()
+        # logger.debug(f"{changes} lines changed")
+        return None
+
+    async def execute_query(self, query: str):
+        cursor = await self.__conn.execute(query)
+        rows = await cursor.fetchall()
+        return rows
