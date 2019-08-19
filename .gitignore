@@ -5,3 +5,8 @@ env/
 ___pycache__/
 .pytest_cache/
 *.debug.yml
+*egg-info/
+htmlcov/
+.coverage
+.python-version
+pyproject.toml
