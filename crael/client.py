@@ -8,6 +8,7 @@
 
 import discord
 import asyncio
+import logging as logger
 
 from crael.connection import SQLDataBase
 from crael.commands import CommandHandler
@@ -37,7 +38,7 @@ class DiscordClient(discord.Client):
         self.cmd = CommandHandler()  # Command Handler composition
         self.db = SQLDataBase()  # Data Base context Manager composition
         self.session = SessionHandler()
-        logger.add("crael.log", rotation="1 week", enqueue=True)
+        logger.basicConfig(level= logger.INFO, filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
         super().__init__()
 
     def register(self, command_str: str):
@@ -46,15 +47,20 @@ class DiscordClient(discord.Client):
         """
         return self.cmd.register(command_str)
 
+    def start_session(self, session_id: str):
+        """
+            Starts a new bot session, see SessionHandler for more info 
+        """
+        self.session.start_session(session_id)
+
     def db_init(self):
         """
             This method executes the sqlschema script and mounts the SQLite
             database.
         """
-        with self.db as db:
-            squema = db.get_schema_script()
-            self.execute_sql_script(squema)
-            logger.info(f"Database created gracefully")
+        squema = self.db.get_schema_script()
+        self.db.execute_script(squema)
+        logger.debug(f"Database created gracefully")
         return
 
     # There should be a safer way to execute scripts in SQLite
@@ -68,15 +74,12 @@ class DiscordClient(discord.Client):
             Returns:
                 Nothing
         """
-        async with self.db as db:
-            db.execute_script(self, script)
-            logger.info(f"Query executed:\n{script}")
+        self.db.execute_script(self, script)
 
     # There should be a safer way to execute querys in SQLite
     # TODO: Look for safer options
     async def execute_query(self, query: str):
-        async with self.db as db:
-            rows = db.execute_query(query)
+        rows = await self.db.execute_query(query)
         return rows
 
     @staticmethod
@@ -88,7 +91,7 @@ class DiscordClient(discord.Client):
         """
         logger.info("Logged in ------")
 
-    @logger.catch()
+
     async def on_message(self, message):
         """Re-implementation from parent class.
 

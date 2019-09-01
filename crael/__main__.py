@@ -3,9 +3,10 @@
 # TODO: Basic char actions
 # TODO: Let player delete a char
 
+import asyncio
 import os
 import random
-from loguru import logger
+import logging as logger
 from crael.client import DiscordClient
 
 
@@ -13,27 +14,28 @@ bot = DiscordClient()
 
 
 @bot.register("!player")
-def create_new_player(message):
+async def create_new_player(message):
     """
     """
     player = message.author
-    player_id = bot.execute_query(f"SELECT * FROM players WHERE discord_id=\"{player.id}\";")
+    player_id = await bot.execute_query(
+        f'SELECT * FROM players WHERE discord_id="{player.id}";'
+    )
 
     if player_id:
         return f"Player {player.name} was already added."
 
-    script = f"INSERT INTO players(nickname, discord_id) \
-               VALUES(\"{player.name}\", \"{player.id}\");"
+    script = f'INSERT INTO players(nickname, discord_id) \
+               VALUES("{player.name}", "{player.id}");'
 
-    _ = bot.execute_sql_script(script)
+    _ = await bot.execute_sql_script(script)
 
     return f"Added {player.display_name} as a player."
 
 
 @bot.register("!begin")
 def start_game_session(message):
-    bot.session.start_session(message.channel.id)
-    logger.debug(f"Added {message.channel.id} into sessions\n {bot.session._sessions}")
+    bot.start_session(message.channel.id)
     return f"stated a new session with id {message.channel.id}"
 
 
