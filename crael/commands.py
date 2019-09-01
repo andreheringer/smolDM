@@ -8,7 +8,7 @@ import re
 
 
 class CommandHandler:
-    """A class created with the intention to help make butler commands easy to write."""
+    """This class handles commnand parsing."""
 
     def __init__(self):
         """

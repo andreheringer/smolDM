@@ -3,30 +3,44 @@
 # TODO: Basic char actions
 # TODO: Let player delete a char
 
+import asyncio
 import os
 import random
+import logging as logger
 from crael.client import DiscordClient
 
 
 bot = DiscordClient()
 
 
-@bot.register_command("!player")
-def create_new_player(message):
+@bot.register("!player")
+async def create_new_player(message):
+    """
+    """
     player = message.author
-    player_id = bot.execute_query(f"SELECT id FROM players WHERE name={player.id};")
+    player_id = await bot.execute_query(
+        f'SELECT * FROM players WHERE discord_id="{player.id}";'
+    )
 
     if player_id:
         return f"Player {player.name} was already added."
 
-    script = f"INSERT INTO players(nickname, discord_id) \
-               VALUES(\"{player.name}\", \"{player.id}\");"
-    _ = bot.execute_sql_script(script)
+    script = f'INSERT INTO players(nickname, discord_id) \
+               VALUES("{player.name}", "{player.id}");'
+
+    _ = await bot.execute_sql_script(script)
+
     return f"Added {player.display_name} as a player."
 
 
-@bot.register_command("!play <char_name>")
-def start_game_session(message, *, char_name):
+@bot.register("!begin")
+def start_game_session(message):
+    bot.start_session(message.channel.id)
+    return f"stated a new session with id {message.channel.id}"
+
+
+@bot.register("!play <char_name>")
+def join_game_session(message, *, char_name):
     # player = message.author
     # player_id = bot.execute_query(f"SELECT id FROM players WHERE name={player.name};")
 
@@ -37,16 +51,20 @@ def start_game_session(message, *, char_name):
     return f"{q}"
 
 
-@bot.register_command("!roll d<num>")
+@bot.register("!roll d<num>")
 def roll(message, *, num):
+    """
+    """
     x = int(num)
     number = random.randint(1, x)
     author = message.author
     return f"{author} rolled {number}"
 
 
-@bot.register_command("!startDB")
+@bot.register("!startDB")
 def startDB(message):
+    """
+    """
     try:
         bot.db_init()
         return f"A Data Base was created!"

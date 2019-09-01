@@ -6,8 +6,8 @@
 """
 
 import os
-import sqlite3 as lite
-from sqlite3 import Error
+import logging as logger
+import aiosqlite as aiolite
 
 
 class SQLDataBase:
@@ -27,50 +27,25 @@ class SQLDataBase:
             Properties:
                 _conn: The sqlite connection object
         """
-        self.__conn = conn
 
-    @property
-    def conn(self):
-        """Connection proprety getter.
+    def get_schema_script(self):
+        with open(self.SCHEMA_URI, mode="r") as sql:
+            script = sql.read()
+        return script
 
-            Returns: self.__conn
-        """
-        return self.__conn
+    async def execute_script(self, script: str):
+        async with aiolite.connect(self.DATABASE_URI) as db:
+            logger.info("Executing sql script:\n\n{script}\n\n")
+            await db.execute(script)
+            changes = db.total_changes()
+            logger.info(f"{changes} lines changed")
+        return changes
 
-    @conn.setter
-    def conn(self, signal: bool):
-        """Connection proprety setter
-
-            Parameters:
-                signal: boolean that changes the connection state,
-                        true -> open connection
-                        false -> close connection
-            Returns:
-                nothing
-        """
-        if signal is False:
-            self.__conn.close()
-
-        if signal is True:
-            try:
-                self.__conn = lite.connect(self.DATABASE_URI)
-            except Error as Err:
-                print(Err)
-                self.__conn = None
-        return
-
-    def __enter__(self):
-        """Defines the SQLDatabase entering context manager
-        """
-        self.conn = True
-        return self
-
-    def __exit__(self, exc_type, exc_log, exc_tb):
-        """Defines the SQLDatabase exiting context manager
-        """
-        self.conn = False
-        return False  # this propagates any exceptions inside the with block
-
-    def get_cursor(self):
-        """Returns a sqlite cursor."""
-        return self.conn.cursor()
+    async def execute_query(self, query: str):
+        
+        async with aiolite.connect(self.DATABASE_URI) as db:
+            logger.info(f"Executing query {query}")
+            async with db.execute(query) as cursor:
+                rows = await cursor.fetchall()
+        
+        return rows

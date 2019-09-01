@@ -1,21 +1,28 @@
+import asyncio
 import pytest
-
-QUERY = "SELECT * FROM players;"
-
-
-@pytest.fixture
-def db_connection():
-    from crael.connection import SQLDataBase
-    return SQLDataBase()
+import pytest_asyncio
 
 
-def test_execute_query(db_connection, query=QUERY):
+QUERY = "SELECT COUNT(DISTINCT `table_name`) FROM `information_schema`.`columns` WHERE `table_schema` = 'crael';"
+
+
+@pytest.mark.asyncio
+async def test_execute_query(query=QUERY):
     """
-    Test if the query returns aa valid list
+        Placeholder
     """
-    with db_connection as db:
-        cur = db.get_cursor()
-        cur.execute(query)
-        rows = cur.fetchall()
-        print(rows)
-        assert rows != []
+    assert True
+
+@pytest.mark.asyncio
+async def test_get_schema():
+    """
+        Placeholder
+    """
+    assert True
+
+@pytest.mark.asyncio
+async def test_execute_script():
+    """
+        Placeholder
+    """
+    assert True

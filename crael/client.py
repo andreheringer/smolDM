@@ -5,13 +5,14 @@
     :license: MIT, see license for details
 """
 
-import sys
+
 import discord
 import asyncio
-from loguru import logger
+import logging as logger
 
 from crael.connection import SQLDataBase
 from crael.commands import CommandHandler
+from crael.session import SessionHandler
 
 
 class DiscordClient(discord.Client):
@@ -36,37 +37,35 @@ class DiscordClient(discord.Client):
         """
         self.cmd = CommandHandler()  # Command Handler composition
         self.db = SQLDataBase()  # Data Base context Manager composition
-        logger.add(sys.stdout, format="{time} {level} {message}", level="INFO")
+        self.session = SessionHandler()
+        logger.basicConfig(level= logger.INFO, filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
         super().__init__()
+
+    def register(self, command_str: str):
+        """
+            Bounds command string to a function, see CommandHandler for more info.
+        """
+        return self.cmd.register(command_str)
+
+    def start_session(self, session_id: str):
+        """
+            Starts a new bot session, see SessionHandler for more info 
+        """
+        self.session.start_session(session_id)
 
     def db_init(self):
         """
             This method executes the sqlschema script and mounts the SQLite
             database.
         """
-        with self.db as db:
-            with open(db.SCHEMA_URI, mode="r") as sql:
-                script = sql.read()
-            cur = db.get_cursor()
-            cur.executescript(script)
-            logger.info(f"Database created gracefully")
+        squema = self.db.get_schema_script()
+        self.db.execute_script(squema)
+        logger.debug(f"Database created gracefully")
         return
 
-    def register_command(self, command_str: str):
-        """
-            Bounds command string to a function, see CommandHandler for more info.
-        """
-        return self.cmd.register(command_str)
-
-    def execute_sql_script(self, script):
-        with self.db as db:
-            cur = db.get_cursor()
-            cur.executescript(script)
-            logger.debug(f"Query executed:\n{script}")
-
-    # There should be a safer way to execute querys in SQLite
+    # There should be a safer way to execute scripts in SQLite
     # TODO: Look for safer options
-    def execute_query(self, query: str):
+    async def execute_sql_script(self, script):
         """
             Executes the query string into the DataBase
             USE WITH CAUTION THIS EXECUTES ANY VALID SQL SCRIPT
@@ -75,11 +74,12 @@ class DiscordClient(discord.Client):
             Returns:
                 Nothing
         """
-        with self.db as db:
-            cur = db.get_cursor()
-            cur.execute(query)
-            rows = cur.fetchall()
-            logger.debug(f"Query executed:\n{query}")
+        self.db.execute_script(self, script)
+
+    # There should be a safer way to execute querys in SQLite
+    # TODO: Look for safer options
+    async def execute_query(self, query: str):
+        rows = await self.db.execute_query(query)
         return rows
 
     @staticmethod
@@ -89,9 +89,9 @@ class DiscordClient(discord.Client):
             Event triggered whenever the client is ready for
             interaction. Parent class requires it to be static.
         """
-        logger.info("Logged\n------")
+        logger.info("Logged in ------")
 
-    @logger.catch()
+
     async def on_message(self, message):
         """Re-implementation from parent class.
 
