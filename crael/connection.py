@@ -60,16 +60,36 @@ class SQLDataBase:
         return
 
     def __enter__(self):
-        """Defines the SQLDatabase entering context manager
+        """
+            Defines the SQLDatabase entering context manager
+            Returns itself.
         """
         self.conn = True
         return self
 
     def __exit__(self, exc_type, exc_log, exc_tb):
-        """Defines the SQLDatabase exiting context manager
+        """
+            Defines the SQLDatabase exiting context manager
         """
         self.conn = False
         return False  # this propagates any exceptions inside the with block
+
+    def get_schema_script(self):
+        """
+        """
+        with open(self.SCHEMA_URI, mode="r") as sql:
+            script = sql.read()
+        return script
+
+    def get_changes(self):
+        """
+        """
+        return self.conn.total_changes
+
+    def commit(self):
+        """
+        """
+        self.conn.commit()
 
     def get_cursor(self):
         """Returns a sqlite cursor."""

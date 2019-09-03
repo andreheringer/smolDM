@@ -5,13 +5,14 @@
     :license: MIT, see license for details
 """
 
-import sys
+
 import discord
 import asyncio
-from loguru import logger
+import logging as logger
 
 from crael.connection import SQLDataBase
 from crael.commands import CommandHandler
+from crael.session import SessionHandler
 
 
 class DiscordClient(discord.Client):
@@ -36,7 +37,8 @@ class DiscordClient(discord.Client):
         """
         self.cmd = CommandHandler()  # Command Handler composition
         self.db = SQLDataBase()  # Data Base context Manager composition
-        logger.add(sys.stdout, format="{time} {level} {message}", level="INFO")
+        self.session = SessionHandler()
+        
         super().__init__()
 
     def db_init(self):
@@ -52,21 +54,13 @@ class DiscordClient(discord.Client):
             logger.info(f"Database created gracefully")
         return
 
-    def register_command(self, command_str: str):
+    def register(self, command_str: str):
         """
             Bounds command string to a function, see CommandHandler for more info.
         """
         return self.cmd.register(command_str)
 
     def execute_sql_script(self, script):
-        with self.db as db:
-            cur = db.get_cursor()
-            cur.executescript(script)
-            logger.debug(f"Query executed:\n{script}")
-
-    # There should be a safer way to execute querys in SQLite
-    # TODO: Look for safer options
-    def execute_query(self, query: str):
         """
             Executes the query string into the DataBase
             USE WITH CAUTION THIS EXECUTES ANY VALID SQL SCRIPT
@@ -77,9 +71,21 @@ class DiscordClient(discord.Client):
         """
         with self.db as db:
             cur = db.get_cursor()
+            cur.executescript(script)
+            logger.info(f"Script executed:\n{script}")
+            db.commit()
+            changes = db.get_changes()
+        return changes
+
+    # There should be a safer way to execute querys in SQLite
+    # TODO: Look for safer options
+    def execute_query(self, query: str):
+
+        with self.db as db:
+            cur = db.get_cursor()
             cur.execute(query)
             rows = cur.fetchall()
-            logger.debug(f"Query executed:\n{query}")
+            logger.info(f"Query executed:\n{query}")
         return rows
 
     @staticmethod
@@ -89,9 +95,8 @@ class DiscordClient(discord.Client):
             Event triggered whenever the client is ready for
             interaction. Parent class requires it to be static.
         """
-        logger.info("Logged\n------")
+        logger.info("Logged in ------")
 
-    @logger.catch()
     async def on_message(self, message):
         """Re-implementation from parent class.
 

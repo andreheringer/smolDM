@@ -5,3 +5,6 @@ env/
 ___pycache__/
 .pytest_cache/
 *.debug.yml
+htmlcov/
+.python-version
+.coverage
