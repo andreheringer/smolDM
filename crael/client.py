@@ -38,7 +38,7 @@ class DiscordClient(discord.Client):
         self.cmd = CommandHandler()  # Command Handler composition
         self.db = SQLDataBase()  # Data Base context Manager composition
         self.session = SessionHandler()
-        
+
         super().__init__()
 
     def db_init(self):

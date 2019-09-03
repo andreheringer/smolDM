@@ -5,7 +5,7 @@
 
 import os
 import random
-import logging as  logger
+import logging as logger
 from crael.client import DiscordClient
 
 
