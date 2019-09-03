@@ -5,7 +5,7 @@
 
 import os
 import random
-from loguru import logger
+import logging as  logger
 from crael.client import DiscordClient
 
 
@@ -34,7 +34,7 @@ def create_new_player(message):
 def start_game_session(message):
     bot.session.start_session(message.channel.id)
     logger.debug(f"Added {message.channel.id} into sessions\n {bot.session._sessions}")
-    return f"stated a new session with id {message.channel.id}"
+    return f"Stated a new session with id {message.channel.id}"
 
 
 @bot.register("!play <char_name>")

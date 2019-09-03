@@ -8,7 +8,7 @@
 
 import discord
 import asyncio
-from loguru import logger
+import logging as logger
 
 from crael.connection import SQLDataBase
 from crael.commands import CommandHandler
@@ -38,7 +38,7 @@ class DiscordClient(discord.Client):
         self.cmd = CommandHandler()  # Command Handler composition
         self.db = SQLDataBase()  # Data Base context Manager composition
         self.session = SessionHandler()
-        logger.add("crael.log", rotation="1 week", enqueue=True)
+        
         super().__init__()
 
     def db_init(self):
@@ -72,7 +72,10 @@ class DiscordClient(discord.Client):
         with self.db as db:
             cur = db.get_cursor()
             cur.executescript(script)
-            logger.info(f"Query executed:\n{script}")
+            logger.info(f"Script executed:\n{script}")
+            db.commit()
+            changes = db.get_changes()
+        return changes
 
     # There should be a safer way to execute querys in SQLite
     # TODO: Look for safer options
@@ -94,7 +97,6 @@ class DiscordClient(discord.Client):
         """
         logger.info("Logged in ------")
 
-    @logger.catch()
     async def on_message(self, message):
         """Re-implementation from parent class.
 

@@ -2,7 +2,7 @@
 import uuid
 import datetime
 import pickle
-from loguru import logger
+import logging as logger
 
 
 class SessionHandler:

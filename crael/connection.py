@@ -75,9 +75,21 @@ class SQLDataBase:
         return False  # this propagates any exceptions inside the with block
 
     def get_schema_script(self):
+        """
+        """
         with open(self.SCHEMA_URI, mode="r") as sql:
             script = sql.read()
         return script
+
+    def get_changes(self):
+        """
+        """
+        return self.conn.total_changes
+
+    def commit(self):
+        """
+        """
+        self.conn.commit()
 
     def get_cursor(self):
         """Returns a sqlite cursor."""
