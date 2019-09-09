@@ -12,5 +12,6 @@ def db_connection():
 def test_execute_query(db_connection, query=QUERY):
     """
     Test if the query returns aa valid list
+    placeholder.
     """
     pass
