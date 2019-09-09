@@ -8,3 +8,4 @@ ___pycache__/
 htmlcov/
 .python-version
 .coverage
+*.egg-info

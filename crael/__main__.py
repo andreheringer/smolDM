@@ -8,7 +8,6 @@ import random
 import logging as logger
 from crael.client import DiscordClient
 
-
 bot = DiscordClient()
 
 
