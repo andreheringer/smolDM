@@ -1,9 +1,9 @@
-name: Python application
-
+name: Crael CI Tests
 on:
   push:
     branches:
     - master
+    - devel
 
 jobs:
   build:
