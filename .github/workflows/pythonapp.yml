@@ -1,9 +1,11 @@
 name: Crael CI Tests
 on:
+  pull_request:
+    branches: 
+      - master
   push:
     branches:
     - master
-    - devel
 
 jobs:
   build:
