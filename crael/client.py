@@ -1,22 +1,20 @@
 """
-    This module defines the Discord Bot interface.
+This module defines the Discord Bot interface.
 
-    :copywrite: Andre Heringer 2018-2019
-    :license: MIT, see license for details
+:copywrite: Andre Heringer 2018-2019
+:license: MIT, see license for details
 """
-
 
 import discord
 import asyncio
-import logging as logger
 
-from crael.connection import SQLDataBase
 from crael.commands import CommandHandler
 from crael.session import SessionHandler
 
 
 class DiscordClient(discord.Client):
-    """
+    """Discord Client class.
+
     This class inhird from the discord client wrapper,
     should abstract the connection with the discord api.
     """
@@ -25,82 +23,39 @@ class DiscordClient(discord.Client):
     # TODO: Add encryption of some sort
 
     def __init__(self):
+        """Discord Client __init__ method.
+
+        Calls for the discord.Client(parent class) __init__
+        it also makes compositions with CommandHandler and
+        SessionHandler objects.
         """
-            DiscordClient __init__ method, this method
-            calls for the discord.Client(parent class) __init__
-            it also makes compositions with CommandHandler and
-            SQLDatabase objects.
-            Parameters:
-                self
-            Returns:
-                DiscordClient object.
-        """
+        # self.logger = logging.getLogger(__name__)
+
         self.cmd = CommandHandler()  # Command Handler composition
-        self.db = SQLDataBase()  # Data Base context Manager composition
         self.session = SessionHandler()
 
         super().__init__()
 
-    def db_init(self):
-        """
-            This method executes the sqlschema script and mounts the SQLite
-            database.
-        """
-        with self.db as db:
-            with open(db.SCHEMA_URI, mode="r") as sql:
-                script = sql.read()
-            cur = db.get_cursor()
-            cur.executescript(script)
-            logger.info(f"Database created gracefully")
-        return
+    def register(self, command_str: str) -> callable:
+        """Bot resgister method.
 
-    def register(self, command_str: str):
-        """
-            Bounds command string to a function, see CommandHandler for more info.
+        Bounds command string to a function, see CommandHandler for more info.
         """
         return self.cmd.register(command_str)
-
-    def execute_sql_script(self, script):
-        """
-            Executes the query string into the DataBase
-            USE WITH CAUTION THIS EXECUTES ANY VALID SQL SCRIPT
-            Parameters:
-                query: SQL script to be executed
-            Returns:
-                Nothing
-        """
-        with self.db as db:
-            cur = db.get_cursor()
-            cur.executescript(script)
-            logger.info(f"Script executed:\n{script}")
-            db.commit()
-            changes = db.get_changes()
-        return changes
-
-    # There should be a safer way to execute querys in SQLite
-    # TODO: Look for safer options
-    def execute_query(self, query: str):
-
-        with self.db as db:
-            cur = db.get_cursor()
-            cur.execute(query)
-            rows = cur.fetchall()
-            logger.info(f"Query executed:\n{query}")
-        return rows
 
     @staticmethod
     async def on_ready():
         """Re-implementation from parent class.
 
-            Event triggered whenever the client is ready for
-            interaction. Parent class requires it to be static.
+        Event triggered whenever the client is ready for
+        interaction. Parent class requires it to be static.
         """
-        logger.info("Logged in ------")
+        print("Logged in ------")
 
-    async def on_message(self, message):
+    async def on_message(self, message) -> None:
         """Re-implementation from parent class.
 
-            Event triggered whenever the client receives a new menssage.
+        Event triggered whenever the client receives a new menssage.
         """
         patern_match = self.cmd.get_command_match(message)
         if not patern_match:

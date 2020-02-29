@@ -1,4 +1,3 @@
-
 import uuid
 import datetime
 import pickle
@@ -6,7 +5,6 @@ import logging as logger
 
 
 class SessionHandler:
-
     def __init__(self):
         self._sessions = dict()
 
@@ -23,8 +21,10 @@ class SessionHandler:
             else:
                 logger.info(f"Session with {session_id} already exists")
 
-        self._sessions[session_id] = {'start_time': datetime.datetime,
-                                      'last_commit': None}
+        self._sessions[session_id] = {
+            "start_time": datetime.datetime,
+            "last_commit": None,
+        }
         logger.info(f"Started a new Session with id: {session_id}")
 
     def session_add(self, session_id, key, value):
@@ -36,6 +36,6 @@ class SessionHandler:
 
     def commit_session(self, session_id):
         session = self._sessions[session_id]
-        session['last_commit'] = datetime.datetime
-        with open(self.session_id, 'ab') as session_file:
+        session["last_commit"] = datetime.datetime
+        with open(self.session_id, "ab") as session_file:
             pickle.dump(self._content, session_file)

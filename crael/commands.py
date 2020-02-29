@@ -11,10 +11,7 @@ class CommandHandler:
     """This class handles commnand parsing."""
 
     def __init__(self):
-        """
-            CommandHandler __init__ method.
-        """
-
+        """Command Handler __init__ method."""
         # :list of tuple: (command_regular_expression, function_signature)
         self.command_list = []
 
@@ -23,45 +20,49 @@ class CommandHandler:
 
     @staticmethod
     def build_command_pattern(command: str):
-        """Function used to build the regex which will be matche agains user input.
+        """Build regex pattern based on Crael command rules.
 
-            Parameters:
-                command: The command string used for registration.
+        Args:
+            command: The command string used for registration
 
-            Returns:
-                The regular expresison generated.
+        Returns:
+            The regular expresison generated.
+
         """
-
         # swap every expression wiht the format <vaiable> to ?Pvariable
         # this way the .match method from re can be called
         command_regex = re.sub(r"(<\w+>)", r"(?P\1.+)", command)
         return re.compile(f"^{command_regex}$")
 
-    def register(self, command_str: str):
+    def register(self, command_str: str) -> callable:
         """Register method decorator witch binds the function to the command regex.
 
-            Parameters:
-                command_str: the command string which will be used to resgister the function under
+        Args:
+            command_str: the command string which will be used to resgister
+                         the function under
 
-            Retruns:
-                The decorated function reference.
+        Returns:
+            The decorated function reference.
+
         """
 
-        def command_decorator(func):
+        def command_decorator(func: callable) -> callable:
             command_patter = self.build_command_pattern(command_str)
             self.command_list.append((command_patter, func))
             return func
 
         return command_decorator
 
-    def get_command_match(self, message):
-        """This method searches for a command match in the command_list atribute.
+    def get_command_match(self, message: str):
+        """Find an registered command that matches pattern on message.
 
-            Parameters:
-                message: message object from the Dsicord API
+        Args:
+            message: message object from the Discord API
 
-            Returns:
-                optinal tuple: A tuple containing the match dictionary and the function reference
+        Returns:
+            optinal tuple: A tuple containing the match dictionary and the
+                           function reference
+
         """
         command = message.content  # get the text in message
         for command_patter, command_func in self.command_list:
@@ -71,13 +72,14 @@ class CommandHandler:
 
         return None
 
-    def cmd_not_found(self):
-        """Helper decorator for resgistering a command match faill back function.
+    def cmd_not_found(self) -> callable:
+        """Decorate standard fail back function.
 
-            **Does not accept any parameters**
+        **Does not accept any parameters**
 
-            Returns:
-                The decorated function
+        Returns:
+            The decorated function
+
         """
 
         def cmd_error_decorator(func):
