@@ -9,3 +9,4 @@ htmlcov/
 .python-version
 .coverage
 *.egg-info
+*.code-workspace
