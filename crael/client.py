@@ -1,5 +1,5 @@
 """
-This module defines the Discord Bot interface.
+This module defines the Discord Clint interface.
 
 :copywrite: Andre Heringer 2018-2019
 :license: MIT, see license for details
@@ -49,7 +49,12 @@ class DiscordClient(discord.Client):
         return self.cmd.register(command_str)
 
     def add_command(self, func, command_str):
-        """
+        """Add a command to the bot CommandHandler.
+
+        Args:
+            func: function called on command
+            command_str: command patter string
+
         """
         self.cmd.add_command(func, command_str)
 
