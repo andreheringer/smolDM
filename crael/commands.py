@@ -56,7 +56,7 @@ class CommandHandler:
     def add_command(self, func, command_str):
         """
         """
-        command_pattern = self.buid_command_pattern(command_str)
+        command_pattern = self.build_command_pattern(command_str)
         self.command_list.append((command_pattern, func))
 
     def get_command_match(self, message: str):
