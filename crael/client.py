@@ -37,11 +37,21 @@ class DiscordClient(discord.Client):
         super().__init__()
 
     def register(self, command_str: str) -> callable:
-        """Bot resgister method.
+        """Bot resgister decorator, bounds command string to a function.
 
-        Bounds command string to a function, see CommandHandler for more info.
+        Args:
+            command_str: Command match string
+
+        Returns:
+            A callable wich is the decorated function.
+
         """
         return self.cmd.register(command_str)
+
+    def add_command(self, func, command_str):
+        """
+        """
+        self.cmd.add_command(func, command_str)
 
     @staticmethod
     async def on_ready():
@@ -53,15 +63,22 @@ class DiscordClient(discord.Client):
         print("Logged in ------")
 
     async def on_message(self, message) -> None:
-        """Re-implementation from parent class.
+        """Event triggered whenever the client receives a new message.
 
-        Event triggered whenever the client receives a new menssage.
+        Re-implementation from parent class.
+
+        Args:
+            message: Discord.py message object
+
+        Returns:
+            None
+
         """
         patern_match = self.cmd.get_command_match(message)
         if not patern_match:
             return None
         kwargs, func = patern_match
         coro = asyncio.coroutine(func)
-        response = await coro(message, **kwargs)
+        response = await coro(self, message, **kwargs)
         channel = message.channel
         await channel.send(response)

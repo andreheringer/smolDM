@@ -1,8 +1,8 @@
 """
-    This module implements the central command handling object.
+This module implements the central command handling object.
 
-    :copywrite: Andre Heringer 2018
-    :license: MIT, see license for details
+:copywrite: Andre Heringer 2018
+:license: MIT, see license for details
 """
 import re
 
@@ -53,6 +53,12 @@ class CommandHandler:
 
         return command_decorator
 
+    def add_command(self, func, command_str):
+        """
+        """
+        command_pattern = self.buid_command_pattern(command_str)
+        self.command_list.append((command_pattern, func))
+
     def get_command_match(self, message: str):
         """Find an registered command that matches pattern on message.
 
@@ -65,10 +71,14 @@ class CommandHandler:
 
         """
         command = message.content  # get the text in message
-        for command_patter, command_func in self.command_list:
-            match = command_patter.match(command)
-            if match:
-                return match.groupdict(), command_func
+
+        match_list = map(
+            lambda match: (match[0].match(command), match[1]), self.command_list
+        )
+
+        for command_patter, command_func in match_list:
+            if command_patter:
+                return command_patter.groupdict(), command_func
 
         return None
 
