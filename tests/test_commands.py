@@ -1,6 +1,6 @@
 from unittest import mock
 import pytest
-from crael.commands import CommandHandler
+from smolDM.commands import CommandHandler
 
 
 # Constants

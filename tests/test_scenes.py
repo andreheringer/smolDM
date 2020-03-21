@@ -1,5 +1,5 @@
 import pytest
-from crael.scenes import SceneLoader
+from smolDM.scenes import SceneLoader
 
 
 @pytest.fixture

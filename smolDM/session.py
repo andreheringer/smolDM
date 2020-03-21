@@ -1,7 +1,6 @@
 import uuid
 import datetime
 import pickle
-import logging as logger
 
 
 class SessionHandler:
@@ -19,20 +18,22 @@ class SessionHandler:
             if session_id in self._sessions.keys() and overight:
                 self._sessions[session_id] = dict()
             else:
-                logger.info(f"Session with {session_id} already exists")
+                # logger.info(f"Session with {session_id} already exists")
+                pass
 
         self._sessions[session_id] = {
             "start_time": datetime.datetime,
             "last_commit": None,
         }
-        logger.info(f"Started a new Session with id: {session_id}")
+        # logger.info(f"Started a new Session with id: {session_id}")
 
     def session_add(self, session_id, key, value):
         session = self._sessions[session_id]
         try:
             session[key] = value
         except Exception as e:
-            logger.error(f"Could not add content {e}")
+            # logger.error(f"Could not add content {e}")
+            pass
 
     def commit_session(self, session_id):
         session = self._sessions[session_id]

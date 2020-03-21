@@ -1,40 +1,22 @@
-name: Crael CI Tests
-
-on:
-  pull_request:
-    branches: 
-      - master
-  push:
-    branches:
-    - master
+name: Run Tests
+on: push
 
 jobs:
-  build:
-
+  pytest:
+    name: pytest
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
+    - uses: actions/checkout@master
+    - name: Install
+      uses: abatilo/actions-poetry@v1.5.0
       with:
-        python-version: 3.7.6
-    
-    - name: Poetry install deps
-      uses: abatilo/actions-poetry@v1.0.0
-      with:
-        python_version: 3.7.6
+        python_version: 3.8.2
         poetry_version: 1.0.5
         args: install
-   
-    - name: Lint with flake8
-      run: |
-        pip install flake8
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
-    - name: Test with pytest
-      run: |
-        pip install pytest
-        pytest
+    - name: Run pytest
+      uses: abatilo/actions-poetry@v1.5.0
+      with:
+        python_version: 3.8.0
+        poetry_version: 0.12.17
+        working_directory: ./working_dir
+        args: run python -m pytest --cov=src --cov-branch --cov-fail-under=100 tests/

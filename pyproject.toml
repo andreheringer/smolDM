@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "crael"
+name = "smolDM"
 version = "0.1.1"
 description = "A tormenta RPG companion bot"
 authors = ["Andre Heringer <andregomesh@dcc.ufmg.br>"]
@@ -8,7 +8,6 @@ authors = ["Andre Heringer <andregomesh@dcc.ufmg.br>"]
 python = "^3.7"
 "discord.py" = "^1.2"
 isort = {version = "^4.3", extras = ["pyproject"]}
-networkx = "^2.4"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7"
