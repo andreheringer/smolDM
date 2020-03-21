@@ -8,8 +8,8 @@ This module defines the Discord Clint interface.
 import discord
 import asyncio
 
-from crael.commands import CommandHandler
-from crael.session import SessionHandler
+from smolDM.commands import CommandHandler
+from smolDM.session import SessionHandler
 
 
 class DiscordClient(discord.Client):

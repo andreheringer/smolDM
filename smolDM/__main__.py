@@ -6,7 +6,7 @@ Main module for the bot, game especific machenics go here.
 """
 import os
 import random
-from crael.client import DiscordClient
+from smolDM.client import DiscordClient
 
 
 def roll(bot, message, *, num):
