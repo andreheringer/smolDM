@@ -21,4 +21,4 @@ jobs:
       with:
         python_version: 3.8.2
         poetry_version: 1.0.5
-        args: run python -m pytest --cov=src --cov-branch --cov-fail-under=80 tests/
+        args: run python -m pytest --cov=src --cov-branch tests/
