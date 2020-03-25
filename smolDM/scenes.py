@@ -8,12 +8,15 @@ import re
 from dataclasses import dataclass
 from typing import List, Dict
 
+
 @dataclass
 class Option:
     """Data class representing Option the player have."""
+
     option_id: int
-    destinaton: List[int]
+    destination: List[int]
     description: str
+
 
 @dataclass
 class Scene:
@@ -26,7 +29,7 @@ class Scene:
 
 
 class SceneLoader:
-    """This class loads scenes from markdown files."""
+    """This class loads scenes from files."""
 
     def __init__(self):
         """Initiaze SceneLoader.
@@ -61,7 +64,7 @@ class SceneLoader:
         """Load scenes from file path.
 
         Args:
-            scene_file_path: mardown file with scene definitions
+            scene_file_path: file with scene definitions
 
         Returns:
             scenes: Dictionary with numbered keys and Snece object values

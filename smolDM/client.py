@@ -6,10 +6,10 @@ This module defines the Discord Clint interface.
 """
 
 import discord
-import asyncio
+from typing import Optional
 
-from smolDM.commands import CommandHandler
-from smolDM.session import SessionHandler
+import smolDM.commands as cmd
+from smolDM.compass import Compass
 
 
 class DiscordClient(discord.Client):
@@ -31,8 +31,9 @@ class DiscordClient(discord.Client):
         """
         # self.logger = logging.getLogger(__name__)
 
-        self.cmd = CommandHandler()  # Command Handler composition
-        self.session = SessionHandler()
+        self._commands = []
+        self._special_handlers = {}
+        self.compass = None
 
         super().__init__()
 
@@ -46,9 +47,11 @@ class DiscordClient(discord.Client):
             A callable wich is the decorated function.
 
         """
-        return self.cmd.register(command_str)
+        return cmd.register(self._commands, command_str)
 
-    def add_command(self, func, command_str):
+    def add_command(
+        self, func: callable, command_str: str, special_handler: Optional[str] = None
+    ):
         """Add a command to the bot CommandHandler.
 
         Args:
@@ -56,10 +59,30 @@ class DiscordClient(discord.Client):
             command_str: command patter string
 
         """
-        self.cmd.add_command(func, command_str)
+        if special_handler:
+            self._special_handlers = cmd.add_special_handler(
+                self._special_handlers, func, command_str, special_handler
+            )
+        else:
+            cmd.add_command(self._commands, func, command_str)
+        return self
+
+    def match_special_handler(self, special_key, message):
+        command = [self._special_handlers[special_key]]
+        return cmd.get_command_match(command, message)
+
+    def load_adventure(self, adv_file):
+        self.compass = Compass(adv_file)
+        return self
+
+    def here(self):
+        return self.compass.cur_scene()
+    
+    def goto(self, option_id):
+        return self.compass.goto(option_id)
 
     @staticmethod
-    async def on_ready():
+    async def on_ready() -> None:
         """Re-implementation from parent class.
 
         Event triggered whenever the client is ready for
@@ -67,7 +90,7 @@ class DiscordClient(discord.Client):
         """
         print("Logged in ------")
 
-    async def on_message(self, message) -> None:
+    async def on_message(self, message: discord.Message) -> None:
         """Event triggered whenever the client receives a new message.
 
         Re-implementation from parent class.
@@ -75,15 +98,11 @@ class DiscordClient(discord.Client):
         Args:
             message: Discord.py message object
 
-        Returns:
-            None
-
         """
-        patern_match = self.cmd.get_command_match(message)
+        patern_match = cmd.get_command_match(self._commands, message)
         if not patern_match:
             return None
         kwargs, func = patern_match
-        coro = asyncio.coroutine(func)
-        response = await coro(self, message, **kwargs)
+        response = await func(self, message, **kwargs)
         channel = message.channel
         await channel.send(response)
