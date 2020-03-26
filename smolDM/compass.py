@@ -5,7 +5,8 @@ This module defines the compass class.
 :license: MIT, see license for details
 """
 import random
-from smolDM.scenes import SceneLoader, Scene
+from smolDM.scenes import SceneLoader as scene_loader
+from smolDM.scenes import Scene
 
 
 class Compass:
@@ -15,7 +16,6 @@ class Compass:
         """Compass init method."""
 
         self._here = None
-        scene_loader = SceneLoader()
         self._scenes = scene_loader.load_scenes(scenes_file)
 
     def cur_scene(self):
@@ -33,5 +33,6 @@ class Compass:
         ]
         for option in cur_options:
             dice = random.randint(0, 100)
-            self._here = option.destination[dice % len(cur_options)]
+            next_scene = option.destination[dice % len(cur_options)]
+            self._here = self._scenes[next_scene]
         return self._here

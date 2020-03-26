@@ -5,6 +5,7 @@ This module defines the Discord Clint interface.
 :license: MIT, see license for details
 """
 
+import asyncio
 import discord
 from typing import Optional
 
@@ -19,20 +20,14 @@ class DiscordClient(discord.Client):
     should abstract the connection with the discord api.
     """
 
-    # TODO: Add a way to control 'state' in the bot
-    # TODO: Add encryption of some sort
-
     def __init__(self):
         """Discord Client __init__ method.
 
-        Calls for the discord.Client(parent class) __init__
-        it also makes compositions with CommandHandler and
-        SessionHandler objects.
+        TODO: Doc string this.
         """
-        # self.logger = logging.getLogger(__name__)
 
         self._commands = []
-        self._special_handlers = {}
+        self._special_commands = {"pick": cmd.build_command_pattern("!pick <num>")}
         self.compass = None
 
         super().__init__()
@@ -49,9 +44,7 @@ class DiscordClient(discord.Client):
         """
         return cmd.register(self._commands, command_str)
 
-    def add_command(
-        self, func: callable, command_str: str, special_handler: Optional[str] = None
-    ):
+    def add_command(self, func: callable, command_str: str):
         """Add a command to the bot CommandHandler.
 
         Args:
@@ -59,27 +52,48 @@ class DiscordClient(discord.Client):
             command_str: command patter string
 
         """
-        if special_handler:
-            self._special_handlers = cmd.add_special_handler(
-                self._special_handlers, func, command_str, special_handler
-            )
-        else:
-            cmd.add_command(self._commands, func, command_str)
+        cmd.add_command(self._commands, func, command_str)
         return self
 
-    def match_special_handler(self, special_key, message):
-        command = [self._special_handlers[special_key]]
-        return cmd.get_command_match(command, message)
-
     def load_adventure(self, adv_file):
+        """
+        """
         self.compass = Compass(adv_file)
         return self
 
     def here(self):
+        """
+        """
         return self.compass.cur_scene()
-    
-    def goto(self, option_id):
-        return self.compass.goto(option_id)
+
+    async def pick(self, message: discord.Message) -> Optional[Scene]:
+        """
+        """
+        if self._special_commands["pick"].match(message.content) is None:
+            return None
+
+        num = self._special_commands["pick"].match(message.content).group()
+
+        if num == "0":
+            return None
+
+        self.compass.goto(num)
+        return self.here()
+
+    async def display_scene(self, scene, channel):
+        """
+        """
+        async with channel.typing():
+            for line in scene.lines:
+                if line == "\n":
+                    await asyncio.sleep(5)
+                else:
+                    await channel.send(line)
+
+            for option in scene.options:
+                await channel.send(f"{option.description}")
+
+    return
 
     @staticmethod
     async def on_ready() -> None:
