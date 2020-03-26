@@ -5,9 +5,10 @@ This module implements the central command handling object.
 :license: MIT, see license for details
 """
 import re
+from typing import List, Tuple, Optional
 
 
-def build_command_pattern(command: str):
+def build_command_pattern(command: str) -> re.Pattern:
     """Build regex pattern based on Crael command rules.
 
     Args:
@@ -23,7 +24,9 @@ def build_command_pattern(command: str):
     return re.compile(f"^{command_regex}$")
 
 
-def register(command_list, command_str: str) -> callable:
+def register(
+    command_list: List[Tuple[re.Pattern, callable]], command_str: str
+) -> callable:
     """Register method decorator witch binds the function to the command regex.
 
     Args:
@@ -43,7 +46,9 @@ def register(command_list, command_str: str) -> callable:
     return command_decorator
 
 
-def add_command(command_list, func, command_str):
+def add_command(
+    command_list: List[Tuple[re.Pattern, callable]], func: callable, command_str: str
+) -> List[Tuple[re.Pattern, callable]]:
     """Add a function and the command pattern to the command list.
 
     Args:
@@ -56,7 +61,9 @@ def add_command(command_list, func, command_str):
     return command_list
 
 
-def get_command_match(command_list, message: str):
+def get_command_match(
+    command_list: List[Tuple[re.Match, callable]], message: str
+) -> Optional[Tuple[dict, callable]]:
     """Find an registered command that matches pattern on message.
 
     Args:
@@ -69,23 +76,13 @@ def get_command_match(command_list, message: str):
     """
     command = message.content  # get the text in message
 
-    match_list = map(
-        lambda match: (match[0].match(command), match[1]), command_list
-    )
+    match_list = map(lambda match: (match[0].match(command), match[1]), command_list)
 
     for command_patter, command_func in match_list:
         if command_patter:
             return command_patter.groupdict(), command_func
 
     return None
-
-
-def add_special_handler(special_handlers, func, command_str, especial_key):
-    """
-    """
-    command_pattern = build_command_pattern(command_str)
-    special_handlers.update({especial_key: (command_pattern, func)})
-    return special_handlers
 
 
 def cmd_not_found(special_handlers) -> callable:
