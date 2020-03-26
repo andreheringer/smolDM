@@ -6,7 +6,7 @@ This module defines the Scene related interfaces.
 """
 import re
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import List, Dict, Sequence
 
 
 @dataclass
@@ -31,36 +31,32 @@ class Scene:
 class SceneLoader:
     """This class loads scenes from files."""
 
-    def __init__(self):
-        """Initiaze SceneLoader.
+    # Thank you Ciça for the regex help
+    SCENE_RE = r"^\#\s(?:.|\n)*?\={5}$"
+    SCENE_TITLE_RE = r"^\#.*\n"
+    SCENE_EDGE_RE = r"^(\d+).\s(.*)\${(.*)}"
 
-        The regular expressions match multiple scene attributes
-        """
-        # Thank you Ciça for the regex help
-        self._scene_re = r"^\#\s(?:.|\n)*?\={5}$"
-        self._scene_title_re = r"^\#.*\n"
-        self._scene_edge_re = r"^(\d+).\s(.*)\${(.*)}"
+    def _parse_option(option_param_seq: Sequence) -> Option:
+        dests = [int(dest) for dest in option_param_seq[2].split("/")]
+        return Option(option_param_seq[0], dests, option_param_seq[1])
 
-    def _parse_option(self, option_tuple):
-        dests = [int(dest) for dest in option_tuple[2].split("/")]
-        return Option(option_tuple[0], dests, option_tuple[1])
-
-    def _parse_scene(self, scene_content: str, scene_num: int) -> Scene:
+    def _parse_scene(scene_content: str, scene_num: int) -> Scene:
         lines = list()
         options = list()
         for scene_att in scene_content.splitlines(True):
-            title_match = re.match(self._scene_title_re, scene_att)
+            title_match = re.match(SceneLoader.SCENE_TITLE_RE, scene_att)
             if title_match:
                 title = title_match.group()
                 continue
-            option_match = re.match(self._scene_edge_re, scene_att)
+            option_match = re.match(SceneLoader.SCENE_EDGE_RE, scene_att)
             if option_match:
-                options.append(self._parse_option(option_match.groups()))
+                options.append(SceneLoader._parse_option(option_match.groups()))
                 continue
             lines.append(scene_att)
         return Scene(scene_num, title, lines, options)
 
-    def load_scenes(self, scene_file_path: str) -> Dict[int, Scene]:
+    @staticmethod
+    def load_scenes(scene_file_path: str) -> Dict[int, Scene]:
         """Load scenes from file path.
 
         Args:
@@ -74,7 +70,7 @@ class SceneLoader:
         scene_file = open(scene_file_path, "r")
         scene_file_content = scene_file.read()
         scene_file.close()
-        matches = re.finditer(self._scene_re, scene_file_content, re.MULTILINE)
+        matches = re.finditer(SceneLoader.SCENE_RE, scene_file_content, re.MULTILINE)
         for scene_num, scene_match in enumerate(matches, start=1):
-            scenes[scene_num] = self._parse_scene(scene_match.group(), scene_num)
+            scenes[scene_num] = SceneLoader._parse_scene(scene_match.group(), scene_num)
         return scenes
