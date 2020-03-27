@@ -86,6 +86,10 @@ class DiscordClient(discord.Client):
         self.compass.goto(num)
         return self.here()
 
+    def special_macth(self, special_key, message):
+        """Return a special command match."""
+        return self._special_commands["pick"].match(message.content)
+
     async def display_scene(self, scene, channel):
         """Display scene.
 

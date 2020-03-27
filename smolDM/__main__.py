@@ -22,13 +22,17 @@ async def game_loop(
         channel: the channel used to interact with the bot for this game run
         scene: current game scene
     """
+
     def check(message):
-        return bot.pick(message) is not None and message.channel == channel
+        return (
+            bot.special_macth("pick", message) is not None
+            and message.channel == channel
+        )
 
     while scene is not None:
         await bot.display_scene(scene, channel)
-        _ = await bot.wait_for("message", check=check)
-        scene = bot.here()
+        msg = await bot.wait_for("message", check=check)
+        scene = bot.pick(msg)
     return
 
 
