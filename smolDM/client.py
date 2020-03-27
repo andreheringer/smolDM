@@ -11,6 +11,7 @@ from typing import Optional
 
 import smolDM.commands as cmd
 from smolDM.compass import Compass
+from smolDM.scenes import Scene
 
 
 class DiscordClient(discord.Client):
@@ -56,44 +57,52 @@ class DiscordClient(discord.Client):
         return self
 
     def load_adventure(self, adv_file):
-        """
+        """Load a new adventure into the bot Compass.
+
+        Args:
+            adv_file: Adventure file path.
         """
         self.compass = Compass(adv_file)
         return self
 
     def here(self):
-        """
-        """
+        """Return bot's current state in adventure."""
         return self.compass.cur_scene()
 
-    async def pick(self, message: discord.Message) -> Optional[Scene]:
-        """
+    def pick(self, message: discord.Message) -> Optional[Scene]:
+        """Pick special command for adventure navegation.
+
+        Args:
+            message: Discord Message
+
+        Returns:
+            Optinoal current scene
         """
         if self._special_commands["pick"].match(message.content) is None:
             return None
 
-        num = self._special_commands["pick"].match(message.content).group()
-
-        if num == "0":
-            return None
+        num = self._special_commands["pick"].match(message.content).group(1)
 
         self.compass.goto(num)
         return self.here()
 
     async def display_scene(self, scene, channel):
-        """
+        """Display scene.
+
+        Args:
+            scene: to be displayed
+            channel: channel wich scene will be displayed
         """
         async with channel.typing():
             for line in scene.lines:
                 if line == "\n":
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(3)
                 else:
                     await channel.send(line)
 
             for option in scene.options:
                 await channel.send(f"{option.description}")
-
-    return
+        return
 
     @staticmethod
     async def on_ready() -> None:
