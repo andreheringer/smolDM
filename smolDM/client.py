@@ -7,10 +7,13 @@ This module defines the Discord Clint interface.
 
 import asyncio
 import discord
+from pathlib import Path
+from loguru import logger
 from typing import Optional
 
 import smolDM.commands as cmd
-from smolDM.compass import Compass
+import smolDM.compass as compass
+from smolDM.scenes import SceneLoader as scene_loader
 from smolDM.scenes import Scene
 
 
@@ -29,7 +32,15 @@ class DiscordClient(discord.Client):
 
         self._commands = []
         self._special_commands = {"pick": cmd.build_command_pattern("!pick <num>")}
-        self.compass = None
+        self._scenes = None
+        self._here = None
+
+        logger.add(
+            Path(__file__).parent.parent.absolute() / "logs/file_1.log",
+            level="INFO",
+            rotation="600 MB",
+            serialize=True,
+        )
 
         super().__init__()
 
@@ -62,12 +73,13 @@ class DiscordClient(discord.Client):
         Args:
             adv_file: Adventure file path.
         """
-        self.compass = Compass(adv_file)
+        self._scenes = scene_loader(adv_file)
+        self._here = self._scenes[1]
         return self
 
     def here(self):
         """Return bot's current state in adventure."""
-        return self.compass.cur_scene()
+        return self._here
 
     def pick(self, message: discord.Message) -> Optional[Scene]:
         """Pick special command for adventure navegation.
@@ -81,10 +93,10 @@ class DiscordClient(discord.Client):
         if self._special_commands["pick"].match(message.content) is None:
             return None
 
-        num = self._special_commands["pick"].match(message.content).group(1)
+        option = self._special_commands["pick"].match(message.content).group(1)
 
-        self.compass.goto(num)
-        return self.here()
+        self._here = compass.goto(self._here, self._scenes, option)
+        return self._here
 
     def special_macth(self, special_key, message):
         """Return a special command match."""
@@ -115,7 +127,7 @@ class DiscordClient(discord.Client):
         Event triggered whenever the client is ready for
         interaction. Parent class requires it to be static.
         """
-        print("Logged in ------")
+        logger.info("Logged in ----")
 
     async def on_message(self, message: discord.Message) -> None:
         """Event triggered whenever the client receives a new message.
@@ -126,7 +138,9 @@ class DiscordClient(discord.Client):
             message: Discord.py message object
 
         """
+        logger.info("Listening to messages...")
         patern_match = cmd.get_command_match(self._commands, message)
+        logger.info("Searching command match for new message")
         if not patern_match:
             return None
         kwargs, func = patern_match

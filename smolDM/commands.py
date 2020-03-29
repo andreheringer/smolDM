@@ -5,6 +5,7 @@ This module implements the central command handling object.
 :license: MIT, see license for details
 """
 import re
+from loguru import logger
 from typing import List, Tuple, Optional
 
 
@@ -20,6 +21,7 @@ def build_command_pattern(command: str) -> re.Pattern:
     """
     # swap every expression wiht the format <vaiable> to ?Pvariable
     # this way the .match method from re can be called
+    logger.info(f"Building new command partter for command: {command}")
     command_regex = re.sub(r"(<\w+>)", r"(?P\1.+)", command)
     return re.compile(f"^{command_regex}$")
 

@@ -7,6 +7,7 @@ This module defines the Scene related interfaces.
 import re
 from dataclasses import dataclass
 from typing import List, Dict, Sequence
+from loguru import logger
 
 
 @dataclass
@@ -68,9 +69,12 @@ class SceneLoader:
         """
         scenes = dict()
         scene_file = open(scene_file_path, "r")
+        logger.info("Attemping to read adventure file content.")
         scene_file_content = scene_file.read()
         scene_file.close()
+        logger.info("Loading scenes....")
         matches = re.finditer(SceneLoader.SCENE_RE, scene_file_content, re.MULTILINE)
         for scene_num, scene_match in enumerate(matches, start=1):
+            logger.debug(f"Loading scene {scene_num}...")
             scenes[scene_num] = SceneLoader._parse_scene(scene_match.group(), scene_num)
         return scenes

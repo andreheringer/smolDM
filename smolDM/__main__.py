@@ -8,6 +8,7 @@ import os
 import random
 import discord
 from pathlib import Path
+from loguru import logger
 from smolDM.client import DiscordClient
 from smolDM.scenes import Scene
 
@@ -62,8 +63,8 @@ async def roll(bot, message, *, num: str) -> str:
     """
     x = int(num)
     number = random.randint(1, x)
-    author = message.author
-    return f"{author} rolled {number}"
+    logger.info(f"Player {message.author} rolled {number}")
+    return f"{message.author} rolled {number}"
 
 
 def main():
