@@ -8,6 +8,7 @@ authors = ["Andre Heringer <andregomesh@dcc.ufmg.br>"]
 python = "^3.7"
 "discord.py" = "^1.2"
 isort = {version = "^4.3", extras = ["pyproject"]}
+loguru = "^0.4.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7"

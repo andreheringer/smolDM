@@ -5,11 +5,16 @@ This module defines the Discord Clint interface.
 :license: MIT, see license for details
 """
 
+import asyncio
 import discord
+from pathlib import Path
+from loguru import logger
 from typing import Optional
 
 import smolDM.commands as cmd
-from smolDM.compass import Compass
+import smolDM.compass as compass
+from smolDM.scenes import SceneLoader as scene_loader
+from smolDM.scenes import Scene
 
 
 class DiscordClient(discord.Client):
@@ -19,21 +24,23 @@ class DiscordClient(discord.Client):
     should abstract the connection with the discord api.
     """
 
-    # TODO: Add a way to control 'state' in the bot
-    # TODO: Add encryption of some sort
-
     def __init__(self):
         """Discord Client __init__ method.
 
-        Calls for the discord.Client(parent class) __init__
-        it also makes compositions with CommandHandler and
-        SessionHandler objects.
+        TODO: Doc string this.
         """
-        # self.logger = logging.getLogger(__name__)
 
         self._commands = []
-        self._special_handlers = {}
-        self.compass = None
+        self._special_commands = {"pick": cmd.build_command_pattern("!pick <num>")}
+        self._scenes = None
+        self._here = None
+
+        logger.add(
+            Path(__file__).parent.parent.absolute() / "logs/file_1.log",
+            level="INFO",
+            rotation="600 MB",
+            serialize=True,
+        )
 
         super().__init__()
 
@@ -49,9 +56,7 @@ class DiscordClient(discord.Client):
         """
         return cmd.register(self._commands, command_str)
 
-    def add_command(
-        self, func: callable, command_str: str, special_handler: Optional[str] = None
-    ):
+    def add_command(self, func: callable, command_str: str):
         """Add a command to the bot CommandHandler.
 
         Args:
@@ -59,27 +64,61 @@ class DiscordClient(discord.Client):
             command_str: command patter string
 
         """
-        if special_handler:
-            self._special_handlers = cmd.add_special_handler(
-                self._special_handlers, func, command_str, special_handler
-            )
-        else:
-            cmd.add_command(self._commands, func, command_str)
+        cmd.add_command(self._commands, func, command_str)
         return self
 
-    def match_special_handler(self, special_key, message):
-        command = [self._special_handlers[special_key]]
-        return cmd.get_command_match(command, message)
-
     def load_adventure(self, adv_file):
-        self.compass = Compass(adv_file)
+        """Load a new adventure into the bot Compass.
+
+        Args:
+            adv_file: Adventure file path.
+        """
+        self._scenes = scene_loader(adv_file)
+        self._here = self._scenes[1]
         return self
 
     def here(self):
-        return self.compass.cur_scene()
-    
-    def goto(self, option_id):
-        return self.compass.goto(option_id)
+        """Return bot's current state in adventure."""
+        return self._here
+
+    def pick(self, message: discord.Message) -> Optional[Scene]:
+        """Pick special command for adventure navegation.
+
+        Args:
+            message: Discord Message
+
+        Returns:
+            Optinoal current scene
+        """
+        if self._special_commands["pick"].match(message.content) is None:
+            return None
+
+        option = self._special_commands["pick"].match(message.content).group(1)
+
+        self._here = compass.goto(self._here, self._scenes, option)
+        return self._here
+
+    def special_macth(self, special_key, message):
+        """Return a special command match."""
+        return self._special_commands["pick"].match(message.content)
+
+    async def display_scene(self, scene, channel):
+        """Display scene.
+
+        Args:
+            scene: to be displayed
+            channel: channel wich scene will be displayed
+        """
+        async with channel.typing():
+            for line in scene.lines:
+                if line == "\n":
+                    await asyncio.sleep(3)
+                else:
+                    await channel.send(line)
+
+            for option in scene.options:
+                await channel.send(f"{option.description}")
+        return
 
     @staticmethod
     async def on_ready() -> None:
@@ -88,7 +127,7 @@ class DiscordClient(discord.Client):
         Event triggered whenever the client is ready for
         interaction. Parent class requires it to be static.
         """
-        print("Logged in ------")
+        logger.info("Logged in ----")
 
     async def on_message(self, message: discord.Message) -> None:
         """Event triggered whenever the client receives a new message.
@@ -99,7 +138,9 @@ class DiscordClient(discord.Client):
             message: Discord.py message object
 
         """
+        logger.info("Listening to messages...")
         patern_match = cmd.get_command_match(self._commands, message)
+        logger.info("Searching command match for new message")
         if not patern_match:
             return None
         kwargs, func = patern_match
