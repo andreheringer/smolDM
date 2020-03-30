@@ -1,1 +1,1 @@
-worker: python -m smoldDM
+worker: python run.py
