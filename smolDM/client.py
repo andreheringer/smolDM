@@ -13,8 +13,7 @@ from typing import Optional
 
 import smolDM.commands as cmd
 import smolDM.compass as compass
-from smolDM.scenes import SceneLoader as scene_loader
-from smolDM.scenes import Scene
+import smolDM.scenes as scene
 
 
 class DiscordClient(discord.Client):
@@ -73,7 +72,7 @@ class DiscordClient(discord.Client):
         Args:
             adv_file: Adventure file path.
         """
-        self._scenes = scene_loader(adv_file)
+        self._scenes = scene.load_scenes(adv_file)
         self._here = self._scenes[1]
         return self
 
@@ -81,7 +80,7 @@ class DiscordClient(discord.Client):
         """Return bot's current state in adventure."""
         return self._here
 
-    def pick(self, message: discord.Message) -> Optional[Scene]:
+    def pick(self, message: discord.Message) -> Optional[scene.Scene]:
         """Pick special command for adventure navegation.
 
         Args:
