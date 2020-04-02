@@ -1,42 +1,22 @@
-import uuid
-import datetime
-import pickle
+from discord.channel import TextChannel
+from dataclasses import dataclass
+from typing import Dict, Optional
+import smolDM.scenes as scenes
 
 
-class SessionHandler:
-    def __init__(self):
-        self._sessions = dict()
+@dataclass
+class Session:
+    """Session struct."""
 
-    def __repr__(self):
-        return f"Active sessions:\n{self._sessions.keys}"
+    player: str
+    scenes: Dict[int, scenes.Scene]
+    here: Optional[scenes.Scene]
+    channel: TextChannel
 
-    def start_session(self, session_id, overight=False):
 
-        if not session_id:
-            session_id = uuid.uuid4().hex
-
-            if session_id in self._sessions.keys() and overight:
-                self._sessions[session_id] = dict()
-            else:
-                # logger.info(f"Session with {session_id} already exists")
-                pass
-
-        self._sessions[session_id] = {
-            "start_time": datetime.datetime,
-            "last_commit": None,
-        }
-        # logger.info(f"Started a new Session with id: {session_id}")
-
-    def session_add(self, session_id, key, value):
-        session = self._sessions[session_id]
-        try:
-            session[key] = value
-        except Exception as e:
-            # logger.error(f"Could not add content {e}")
-            pass
-
-    def commit_session(self, session_id):
-        session = self._sessions[session_id]
-        session["last_commit"] = datetime.datetime
-        with open(self.session_id, "ab") as session_file:
-            pickle.dump(self._content, session_file)
+def start_session(player, channel, scenes, here=None) -> Session:
+    """
+    """
+    if here is None:
+        here = scenes[1]
+    return Session(player, scenes, here, channel)
