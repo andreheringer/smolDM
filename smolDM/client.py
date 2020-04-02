@@ -8,12 +8,13 @@ This module defines the Discord Clint interface.
 import asyncio
 import discord
 from pathlib import Path
-from loguru import logger
 from typing import Optional
+from loguru import logger
 
 import smolDM.commands as cmd
 import smolDM.compass as compass
 import smolDM.scenes as scene
+import smolDM.session as session
 
 
 class DiscordClient(discord.Client):
@@ -31,8 +32,8 @@ class DiscordClient(discord.Client):
 
         self._commands = []
         self._special_commands = {"pick": cmd.build_command_pattern("!pick <num>")}
-        self._scenes = None
-        self._here = None
+        self._sessions = {}
+        self.hash_session_key = lambda player, channel_id: f"{player}@{channel_id}"
 
         logger.add(
             Path(__file__).parent.parent.absolute() / "logs/file_1.log",
@@ -66,21 +67,35 @@ class DiscordClient(discord.Client):
         cmd.add_command(self._commands, func, command_str)
         return self
 
-    def load_adventure(self, adv_file):
+    def special_macth(self, special_key, message):
+        """Return a special command match."""
+        return self._special_commands["pick"].match(message.content)
+
+    def load_adventure(self, adv_file, player, channel):
         """Load a new adventure into the bot Compass.
 
         Args:
             adv_file: Adventure file path.
         """
-        self._scenes = scene.load_scenes(adv_file)
-        self._here = self._scenes[1]
-        return self
+        _scenes = scene.load_scenes(adv_file)
 
-    def here(self):
+        session_key = self.hash_session_key(player, channel.id)
+
+        self._sessions[session_key] = session.start_session(player, channel, _scenes)
+        return self._sessions[session_key]
+
+    def sessions(self):
+        """Return bot's sessions."""
+        return self._sessions.keys()
+
+    def end_adventure(self, ses_key):
+        del self._sessions[ses_key]
+
+    def here(self, session_key):
         """Return bot's current state in adventure."""
-        return self._here
+        return self._sessions[session_key].here
 
-    def pick(self, message: discord.Message) -> Optional[scene.Scene]:
+    def pick(self, message: discord.Message, session) -> Optional[scene.Scene]:
         """Pick special command for adventure navegation.
 
         Args:
@@ -94,12 +109,7 @@ class DiscordClient(discord.Client):
 
         option = self._special_commands["pick"].match(message.content).group(1)
 
-        self._here = compass.goto(self._here, self._scenes, option)
-        return self._here
-
-    def special_macth(self, special_key, message):
-        """Return a special command match."""
-        return self._special_commands["pick"].match(message.content)
+        return compass.goto(session.here, session.scenes, option)
 
     async def display_scene(self, scene, channel):
         """Display scene.
