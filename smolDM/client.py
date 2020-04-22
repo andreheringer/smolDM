@@ -27,7 +27,9 @@ class DiscordClient(discord.Client):
     def __init__(self):
         """Discord Client __init__ method.
 
-        TODO: Doc string this.
+        Initiate the bot instance with an empty command list, an empty session dict,
+        a dict of special commands, a default path for adventure storage/loading
+        and a session hash function.
         """
 
         self._commands = []
@@ -58,11 +60,11 @@ class DiscordClient(discord.Client):
         return cmd.register(self._commands, command_str)
 
     def add_command(self, func: callable, command_str: str):
-        """Add a command to the bot CommandHandler.
+        """Add a command to bot's command list.
 
         Args:
             func: function called on command
-            command_str: command patter string
+            command_str: command pattern string
 
         """
         cmd.add_command(self._commands, func, command_str)
@@ -90,6 +92,7 @@ class DiscordClient(discord.Client):
         return self._sessions.keys()
 
     def end_adventure(self, ses_key):
+        """Delete session given session key."""
         del self._sessions[ses_key]
 
     def here(self, session_key):
@@ -117,7 +120,7 @@ class DiscordClient(discord.Client):
 
         Args:
             scene: to be displayed
-            channel: channel wich scene will be displayed
+            channel: message channel
         """
         async with channel.typing():
             for line in scene.lines:
@@ -148,7 +151,7 @@ class DiscordClient(discord.Client):
             message: Discord.py message object
 
         """
-        logger.info("Listening to messages...")
+        logger.info("Listening for messages...")
         patern_match = cmd.get_command_match(self._commands, message)
         logger.info("Searching command match for new message")
         if not patern_match:
