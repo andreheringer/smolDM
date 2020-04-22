@@ -42,6 +42,7 @@ async def start_default(bot: DiscordClient, message: discord.Message):
         bot: the current bot instance
         message: current message been evaluated
     """
+
     ses_key = bot.hash_session_key(message.author, message.channel.id)
     if ses_key in bot.sessions():
         return f"An adventure is already in place."
@@ -53,6 +54,13 @@ async def start_default(bot: DiscordClient, message: discord.Message):
     return f"The adventure has ended, see you soon."
 
 
+async def read(bot, message: discord.Message):
+    """Read a file attached at the message."""
+    f = message.attachments[0]
+    i = await f.save("adventures/ad1.txt")
+    return f"Saved {i} bytes"
+
+
 async def roll(bot, message, *, num: str) -> str:
     """Dice roll command.
 
@@ -62,7 +70,7 @@ async def roll(bot, message, *, num: str) -> str:
         num: command paramenter for the dice size
 
     Retruns:
-        A string saying the player roll.
+        A string saying what the player rolled.
     """
     x = int(num)
     number = random.randint(1, x)
@@ -74,6 +82,7 @@ def main():
     """Define main entry point for the bot."""
 
     bot = DiscordClient()
+    bot.add_command(read, "!read")
     bot.add_command(roll, "!roll d<num>")
     bot.add_command(start_default, "!default")
     bot.run(os.getenv("SMOLDM_SECRET_TOKEN"))

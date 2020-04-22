@@ -34,6 +34,7 @@ class DiscordClient(discord.Client):
         self._special_commands = {"pick": cmd.build_command_pattern("!pick <num>")}
         self._sessions = {}
         self.hash_session_key = lambda player, channel_id: f"{player}@{channel_id}"
+        self.adventures = Path(__file__).parent.absolute() / "adventures/"
 
         logger.add(
             Path(__file__).parent.parent.absolute() / "logs/file_1.log",
