@@ -1,5 +1,4 @@
-"""
-TODO: Re-doc this.
+"""This module controls the player's motions through the game.
 
 :copywrite: Andre Heringer 2018-2019
 :license: MIT, see license for details

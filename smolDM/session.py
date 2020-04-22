@@ -1,3 +1,8 @@
+"""This module contros session initialization and mutability.
+
+:copywrite: Andre Heringer 2018-2019
+:license: MIT, see license for details
+"""
 from discord.channel import TextChannel
 from dataclasses import dataclass
 from typing import Dict, Optional
@@ -15,7 +20,14 @@ class Session:
 
 
 def start_session(player, channel, scenes, here=None) -> Session:
-    """
+    """Start session.
+
+    Args:
+        channel: Session channel
+        scenes: Adventure's scenes available in session
+        here: Optional adventures starting point, defaults to scenes[1]
+    Returns:
+        A session object
     """
     if here is None:
         here = scenes[1]

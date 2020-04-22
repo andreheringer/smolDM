@@ -7,18 +7,16 @@ Main module for the bot, game especific machenics go here.
 import os
 import random
 import discord
-from pathlib import Path
 from loguru import logger
 from smolDM.client import DiscordClient
 
 
-async def game_loop(bot: DiscordClient, session):
+async def game_loop(bot: DiscordClient, session: str):
     """Control game loop.
 
     Args:
-        bot: the bot instance the game is running
-        channel: the channel used to interact with the bot for this game run
-        scene: current game scene
+        bot: bot instance
+        session: gameplay session key
     """
 
     def check(message):
@@ -35,34 +33,61 @@ async def game_loop(bot: DiscordClient, session):
     return
 
 
-async def start_default(bot: DiscordClient, message: discord.Message):
+async def start_default(bot: DiscordClient, message: discord.Message) -> str:
     """Start the default/example adventure.
 
     Args:
-        bot: the current bot instance
-        message: current message been evaluated
+        bot: bot instance
+        message: message evaluated
     """
+
     ses_key = bot.hash_session_key(message.author, message.channel.id)
     if ses_key in bot.sessions():
         return f"An adventure is already in place."
 
-    path = Path(__file__).parent.absolute() / "adventures/default.md"
+    path = bot.adventures / "default.md"
     new_session = bot.load_adventure(path, message.author, message.channel)
     _ = await game_loop(bot, new_session)
     bot.end_adventure(ses_key)
     return f"The adventure has ended, see you soon."
 
 
-async def roll(bot, message, *, num: str) -> str:
+async def start_adventure(bot, message, *, adventure) -> str:
+    """Start adventure.
+
+    Args:
+        bot: bot instance
+        message: message evaluated
+        adventure: adventure file name
+    """
+    ses_key = bot.hash_session_key(message.author, message.channel.id)
+    if ses_key in bot.sessions():
+        return f"An adventure is already in place."
+    path = bot.adventures / adventure
+    new_session = bot.load_adventure(path, message.author, message.channel)
+    _ = await game_loop(bot, new_session)
+    bot.end_adventure(ses_key)
+    return f"The adventure has ended, see you soon."
+
+
+async def read(bot, message: discord.Message, *, adv):
+    """Read an adventure file attached to a message."""
+    f = message.attachments[0]
+    bts = await f.save(bot.adventures / adv)
+    logger.info(f"Saved {bts} bytes, at {adv} file.")
+    return f"Adventure {adv} was archived and can now be played."
+
+
+async def roll(bot: DiscordClient, message: discord.Message, *, num: str) -> str:
     """Dice roll command.
 
     Args:
         bot: the current bot instance
-        message: current message been evaluated
-        num: command paramenter for the dice size
+        message: message evaluated
+        num: command paramenter especifing dice size
 
     Retruns:
-        A string saying the player roll.
+        A string saying what the player rolled.
     """
     x = int(num)
     number = random.randint(1, x)
@@ -71,9 +96,10 @@ async def roll(bot, message, *, num: str) -> str:
 
 
 def main():
-    """Define main entry point for the bot."""
+    """Bot instanciation."""
 
     bot = DiscordClient()
+    bot.add_command(read, "!read <adv>")
     bot.add_command(roll, "!roll d<num>")
     bot.add_command(start_default, "!default")
     bot.run(os.getenv("SMOLDM_SECRET_TOKEN"))

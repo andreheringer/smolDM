@@ -1,5 +1,4 @@
-"""
-This module defines the Scene related interfaces.
+"""This module defines the Scene related interfaces.
 
 :copywrite: Andre Heringer 2018-2019
 :license: MIT, see license for details
@@ -18,7 +17,7 @@ SCENE_EDGE_RE = r"^(\d+).\s(.*)\${(.*)}"
 
 @dataclass
 class Option:
-    """Data class representing Option the player have."""
+    """Data class representing a Option the player have."""
 
     option_id: int
     destination: List[int]
