@@ -2,7 +2,7 @@
 
 Very smol Dungeon Master for one shot RPG sessions.
 
-This project was built with intending to be a Python exercise. I love Python and want to keep working with it even tho my current work place is a Java shop.
+This project was built intending to be a Python exercise. I love Python and want to keep working with it even tho my current work place is a Java shop.
 
 ## Commands
 
