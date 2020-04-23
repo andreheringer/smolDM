@@ -15,7 +15,7 @@ The bot comes equiped with some basic commands:
 
 ### Especial commands
 
-- ```!pick <opt_id>```: 
+- ```!pick <opt_id>```: Pick a opt
 
 ## Add commands
 
