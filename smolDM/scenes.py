@@ -1,5 +1,11 @@
 """This module defines the Scene related interfaces.
 
+Attributes:
+    SCENE_RE: Python regular expression that matches SmolDM's adventure scene
+    SCENE_TITLE_RE: Python regular expression that matches SmolDM's adventure
+                    scene title
+    SCENE_OPTION_RE: Python regular expression that matches SmolDM's option
+
 :copywrite: Andre Heringer 2018-2019
 :license: MIT, see license for details
 """
@@ -9,10 +15,9 @@ from typing import List, Dict, Sequence
 from loguru import logger
 
 
-# Thank you Ciça for the regex help
 SCENE_RE = r"^\#\s(?:.|\n)*?\={5}$"
 SCENE_TITLE_RE = r"^\#.*\n"
-SCENE_EDGE_RE = r"^(\d+).\s(.*)\${(.*)}"
+SCENE_OPTION_RE = r"^(\d+).\s(.*)\${(.*)}"
 
 
 @dataclass
@@ -47,7 +52,7 @@ def _parse_scene(scene_content: str, scene_num: int) -> Scene:
         if title_match:
             title = title_match.group()
             continue
-        option_match = re.match(SCENE_EDGE_RE, scene_att)
+        option_match = re.match(SCENE_OPTION_RE, scene_att)
         if option_match:
             options.append(_parse_option(option_match.groups()))
             continue

@@ -1,23 +1,24 @@
 # Scene 1
 
-Isso é uma aventura incrivel! Uau amazing!
-Imagine uma narrativa super interessante aqui.
+This is an amazing adventure!
+Welcome to the first scene.
+Now, imagine a fantastic lore description here, and then pick your option with "!pick <option-id>" command
 
-1. Option 1: vá para cena 2 ${2}
-2. Option 2: vá para nada ${0}
+1. Option 1: go to scene 2 ${2}
+2. Option 2: end adventure ${0}
 
 =======================================
 
 # Scene 2
-Essa é a segunda cena da aventura, super pica.
-Agora eu vou fazer uma pausa dramatica...
+This is the second scene 
+I will now make a dramatic pause...
 
 
 
 
-Uuuhhh...suspense...
+Uuuhhh...thriller...
 
-1. Option 1: vá para cena 1 ${1}
-2. Option 2: vá para nada ${0}
+1. Option 1: go back to scene 1 ${1}
+2. Option 2: end adventure ${0}
 
 =====================================
