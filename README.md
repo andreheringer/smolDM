@@ -2,7 +2,7 @@
 
 Very smol Dungeon Master for one shot RPG sessions.
 
-This project was built intending to be a Python exercise. I love Python and want to keep working with it even tho my current work place is a Java shop.
+This project was built intending to be a Python exercise. I love Python and want to keep working with it even though my current work place is a Java shop.
 
 ## Commands
 
@@ -21,7 +21,7 @@ The bot comes equiped with some basic commands:
 
 You can fork this repo and add more custom commands by calling ```bot.add_command(func, pattern)``` variables are defined like the Flask API, using "< variable >" syntax.
 
-Variables are all strings tho.
+Variables are all strings though.
 
 ## Example adventure file
 
