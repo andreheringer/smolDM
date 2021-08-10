@@ -87,6 +87,10 @@ def get_command_match(
     return None
 
 
+def faz_coisas():
+    return "WoW!"
+
+
 def cmd_not_found(special_handlers) -> callable:
     """Decorate standard fail back function.
 
